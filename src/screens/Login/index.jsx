@@ -10,7 +10,7 @@ import BotomSheet from '@gorhom/bottom-sheet'
 import Toast from 'react-native-toast-message'
 import { ContextAuth } from '../../context/index'
 const Login = () => {
-    const { login, loading } = useContext(ContextAuth);
+    const { login, loading, setLoading } = useContext(ContextAuth);
     const [username, setUserName] = useState('juliana.batista')
     const [password, setPassword] = useState('ts261010')
     const [focusedEmail, setFocusedEmail] = useState(false)
@@ -54,6 +54,12 @@ const Login = () => {
 
     }
 
+    // sempre que o usuario voltar pra tela de login, o loading para de rodar
+    useEffect(() => {
+
+        setLoading(false)
+
+    }, [])
     return (
 
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

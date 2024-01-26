@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     container: {
         marginBottom: 15,
         backgroundColor: 'white',
-        borderRadius: 8
+        borderRadius: 8,
     },
     label: {
         fontSize: 16,

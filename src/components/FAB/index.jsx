@@ -5,9 +5,9 @@ import { FAB } from '@rneui/themed';
 
 const FABComponent = ({ onPress }) => {
     return (
-        <View>
+        <View style={{ position: 'relative' }}>
             <FAB
-                style={{ left: 0, right: 0, position: 'absolute', bottom: 60 }}
+                style={{ left: 0, right: 0, position: 'absolute', bottom: 60, zIndex: 10 }}
                 onPress={onPress}
                 size='large'
                 icon={{ type: 'Ionicon', name: 'add', color: 'white' }}

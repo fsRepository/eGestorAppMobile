@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
 import { ContextAuth } from '../../context/index'
@@ -9,22 +9,39 @@ import Avatar from 'react-native-vector-icons/FontAwesome'
 import Camera from 'react-native-vector-icons/Entypo'
 
 import * as ImagePicker from 'expo-image-picker'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 export default function CustomDrawer(props) {
 
     const [image, setImage] = useState(null)
     const { user } = useContext(ContextAuth)
 
+
+    //vericar se tem imagem no storage
+
+    useEffect(() => {
+
+        async function VerifyImage() {
+
+            await AsyncStorage.getItem(user.uid)
+                .then((response) => {
+                    console.log('imagem recuperada')
+                    setImage(response)
+                    console.log(response)
+
+                })
+                .cath((error) => {
+                    console.log('Erro ao recuperar imagem do storage', error)
+                })
+        }
+
+        VerifyImage()
+    }, [])
+
     //função pra pegar imagem da galeria 
     const pickImage = async () => {
-        //pedindo permissao pra acessar a camera
-        const { statusCamera } = await ImagePicker.requestCameraPermissionsAsync();
-        //premisssao da galeria
-        const { statusGalery } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (statusCamera !== 'granted' || statusGalery !== 'granted') {
-            console.log('Permissão negada')
-            return;
-        }
 
 
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -38,6 +55,15 @@ export default function CustomDrawer(props) {
 
         if (!result.canceled) {
             setImage(result.assets[0].uri);
+            const imageUri = result.assets[0].uri
+            const userUID = user.uid
+            await AsyncStorage.setItem(userUID, imageUri)
+            try {
+                console.log('imagem enviada pro storage')
+            }
+            catch (error) {
+                console.log('Erro ao enviar imagem pro storage', error)
+            }
         }
     };
 
@@ -69,7 +95,7 @@ export default function CustomDrawer(props) {
 
                 <View style={{ marginStart: 15, marginTop: 5 }} >
                     <Text style={styles.title}>Olá {user.name}</Text>
-                    <Text style={styles.p}> joanderson@gmail.com</Text>
+                    <Text style={styles.p}> {user.email}</Text>
                 </View>
             </View>
             <DrawerItemList{...props} />

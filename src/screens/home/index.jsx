@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         marginEnd: 140,
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex: 5000
     }
 })

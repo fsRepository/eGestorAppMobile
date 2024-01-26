@@ -1,20 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import { Input, Tab, TabView, FAB, Button, CheckBox } from '@rneui/themed'
 import UserIcon from 'react-native-vector-icons/AntDesign'
 import Local from 'react-native-vector-icons/Entypo'
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import FabSpeed from '../../../../components/FabSpeedAction';
-
+import { apiClientes } from '../../../../services/api';
+import axios from 'axios';
+import { ContextAuth } from '../../../../context';
+import Toast from 'react-native-toast-message';
+import { format, addDays, } from 'date-fns';
+import DropDownPicker from 'react-native-dropdown-picker';
+import AccountIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const DataCustomers = () => {
 
-
-
+    const navigation = useNavigation()
+    const { user, userRepres, LoadUsers } = useContext(ContextAuth)
     //consts para armazenar os valores dos inputs
     const [cgi, setCgi] = useState('')
     const [typeProfile, setTypeProfile] = useState('')
-    const [dateRegister, setDateRegister] = useState('')
+    const [dateRegister, setDateRegister] = useState(new Date())
     const [Razao, setRazao] = useState('')
     const [fantasy, setFantasy] = useState('')
     const [cnpj, setCnpj] = useState('')
@@ -29,7 +37,14 @@ const DataCustomers = () => {
     const [email, setEmail] = useState('')
     const [telefone, setTelefone] = useState('')
     const [representante, setRepresentante] = useState('')
-    const [status, setStatus] = useState('')
+    const [status, setStatus] = useState(true)
+    const [mensal, setMensal] = useState(false)
+    const [obs, setObs] = useState('')
+    const [nivel, setNivel] = useState('')
+    const [model, setModel] = useState('')
+    const [userNfce, setUserNfce] = useState('')
+    const [passwordNfce, setPasswordNfce] = useState('')
+    const [dateValid, setDateValid] = useState(new Date())
     const [checkedAtv, setCheckedAtv] = useState(false)
     const [checkedIna, setCheckedIna] = useState(false)
 
@@ -42,12 +57,77 @@ const DataCustomers = () => {
     //const para determinar se o speedTab esta aberto ou fechado
     const [openTab, setOpenTab] = useState(false)
 
+    //const para selecionar o representante
+
+    //states para deteminar a mensalidade como verdadeira ou falsa
+    const [chekmensal, setChekMensal] = useState(false)
+    const [chekmensalN, setChekMensalNN] = useState(false)
+
+
+
+    useEffect(() => {
+        LoadUsers()
+    }, [])
+
+    const [openPicker, setOpenPicker] = useState(false)
+    const [selectedUserRepres, setSelectedUserRepres] = useState('')
+    //função para converter para o formato esperado pelo picker
+    const formatUsersRepres = userRepres.map((item) => ({
+        value: item.Nome,
+        label: item.Nome
+    }))
+    //função para procurar o uid do representante escolhido atraves do nome
+    function SearchUser(value) {
+        console.log('Valor a ser encontrado:', value);
+
+        const foundUser = userRepres.find(item => item.Nome === value);
+
+
+        if (foundUser) {
+            console.log('UID do representante encontrado:', foundUser.UID);
+            setRepresentante(foundUser.UID)
+        } else {
+            console.log('Representante não encontrado');
+        }
+    }
+
 
     //estou recebendo os dados pela navegação
     const route = useRoute();
     const { itemSelected, type } = route.params || {};
     //verificar se tem um item selecionado, se tiver ele carrega a pagina com os seus dados,
     // se nao tiver selecionado ele abre tudo vazio
+
+
+    //formatando a data 
+    console.log(dateRegister)
+    const dateFormat = format(dateRegister, 'dd/MM/yyyy')
+    const dateFormatValid = format(dateValid, 'dd/MM/yyyy')
+
+    //controla o estado do picker data
+    const [openCalender, setOpenCalender] = useState(false)
+
+    //função para formatar a data de validade pro formato esperado pelo banco
+    function handleDateChange(event, date) {
+        console.log('data', date)
+        setOpenCalender(false)
+        setDateValid(date)
+
+
+    }
+
+    // se o usuario digitar pessoa fisica, ele so deixa o f, se nao deixa o j
+    function handleTypeProfile(text) {
+        if (text === 'fisica' || 'FISICA') {
+            setTypeProfile('f')
+            console.log(typeProfile)
+        } else {
+            setTypeProfile('j')
+            console.log(typeProfile)
+        }
+
+    }
+
     useEffect(() => {
         console.log('item:', itemSelected)
         if (itemSelected) {
@@ -67,6 +147,10 @@ const DataCustomers = () => {
             setTelefone(itemSelected.Telefone)
             setRepresentante(itemSelected.Representante)
             setNum(itemSelected.Numero)
+            setStatus(itemSelected.Ativo)
+            setSelectedUserRepres(itemSelected.Representante)
+
+
             console.log(itemSelected.id)
             if (itemSelected.Ativo === true) {
                 setCheckedAtv(true);
@@ -80,73 +164,446 @@ const DataCustomers = () => {
         }
 
 
-    }, [])
+    }, [itemSelected])
 
 
-    function Edit() {
+
+
+    async function Edit() {
         //quando clica em editar , o input é ativado
         setDisabled(false)
         setOpenTab(false)
+        if (disabled === false) {
+            if (Razao !== itemSelected.Nome || status !== itemSelected.Ativo) {
+
+
+                await axios.put(`${apiClientes}/${itemSelected.UID}`, {
+
+
+                    UID: itemSelected.UID,
+                    UIDContratante: user.UidContratante,
+                    CGI: cgi,
+                    Nome: Razao.toUpperCase(),
+                    NomeFantasia: fantasy.toUpperCase(),
+                    TipoPessoa: typeProfile.toUpperCase(),
+                    CNPJ: cnpj,
+                    InscricaoEstadual: inscription,
+                    Ativo: status,
+                    DataCadastro: dateRegister,
+                    Telefone: telefone,
+                    Email: email,
+                    Bairro: district.toUpperCase(),
+                    Logradouro: adress.toUpperCase(),
+                    CEP: cep,
+                    Cidade: city,
+                    UF: uf,
+                    Numero: num,
+                    Representante: representante,
+                    Complemento: complement.toUpperCase(),
+                    Atendimentos: [],
+                    Usuario: null,
+                    Contador: '',
+                    SemMensalidade: mensal,
+                    Status: '',
+                    OBS: obs,
+                    Nivel: nivel,
+                    Validade: dateValid,
+                    Modelo: model,
+                    UsuarioNFCe: userNfce,
+                    SenhaNFCe: passwordNfce
+
+
+
+
+                }, {
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then(() => {
+                        console.log('dados alterados')
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Dados alterados com sucesso'
+                        })
+                        navigation.navigate('customers')
+                    })
+                    .catch((error) => {
+                        console.log('erro ao alterar dados', error.response.data)
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Erro ao alterar dados',
+                            text2: error
+
+                        })
+                    })
+            }
+        } else {
+            Toast.show({
+                type: 'info',
+                text1: 'Nada foi modificado'
+            })
+            console.log('e preciso alterar algo')
+        }
 
     }
 
-    function Save() {
+    async function Save() {
         //quando clica em salvar o input e desativado
-        setDisabled(true)
-        setOpenTab(false)
+
+
+
+
+        const data = {
+            UIDContratante: user.UidContratante,
+            CGI: cgi,
+            Nome: Razao.toUpperCase(),
+            NomeFantasia: fantasy.toUpperCase(),
+            TipoPessoa: typeProfile.toUpperCase(),
+            CNPJ: cnpj,
+            InscricaoEstadual: inscription,
+            Ativo: status,
+            DataCadastro: dateRegister,
+            Telefone: telefone,
+            Celular: '',
+            Email: email,
+            Bairro: district.toUpperCase(),
+            Logradouro: adress.toUpperCase(),
+            CEP: cep,
+            Cidade: city,
+            UF: uf,
+            Numero: num,
+            Representante: representante,
+            Complemento: complement.toUpperCase(),
+            Atendimentos: [],
+            Usuario: null,
+            Contador: '',
+            SemMensalidade: mensal,
+            Status: '',
+            OBS: obs,
+            Nivel: nivel,
+            Validade: dateValid,
+            Modelo: model,
+            UsuarioNFCe: userNfce,
+            SenhaNFCe: passwordNfce
+
+
+        }
+
+        if (!itemSelected) {
+            if (cgi !== '' || Razao !== '' || cnpj !== '') {
+
+
+                console.log(data)
+                await axios.post(apiClientes, data, {
+                    headers: { 'Content-Type': 'application/json' }
+                })
+
+
+                    .then(() => {
+                        console.log('Novo cliente adicionado')
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Novo cliente adicionado'
+                        })
+                        setOpenTab(false)
+                    })
+                    .catch((error) => {
+                        console.log('erro ao adicionar cliente', error.response.data)
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Erro ao adicionar cliente',
+                            text2: error.response.data
+                        })
+                    })
+            } else {
+                Toast.show({
+                    type: 'info',
+                    text1: 'Preencha os campos vazios'
+                })
+            }
+        }
     }
 
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Tab
-                value={index}
-                onChange={(e) => setIndex(e)}
-                indicatorStyle={{
-                    backgroundColor: 'white',
-                    height: 3
-                }}
-                containerStyle={{ backgroundColor: '#DB6015' }}
-                variant='primary'
-            >
+        <KeyboardAvoidingView behavior='height' style={{ flex: 1 }}>
+            <SafeAreaView style={styles.container}>
+                <Tab
+                    value={index}
+                    onChange={(e) => setIndex(e)}
+                    indicatorStyle={{
+                        backgroundColor: 'white',
+                        height: 3
+                    }}
+                    containerStyle={{ backgroundColor: '#DB6015' }}
 
-                <Tab.Item
-                    title='Dados do Cliente'
-                    titleStyle={{ fontSize: 18 }}
-                    icon={<UserIcon name='user' color='white' size={20} />}
-                />
-                <Tab.Item
-                    title='Endereço'
-                    titleStyle={{ fontSize: 18 }}
-                    icon={<Local name='location' color='white' size={20} />}
-                />
+                    variant='primary'
+                >
+
+                    <Tab.Item
+
+                        title='Dados'
+                        titleStyle={{ fontSize: 18 }}
+                        icon={<UserIcon name='user' color='white' size={20} style={{ marginTop: 20 }} />}
+                    />
+                    <Tab.Item
+                        title='Endereço'
+                        titleStyle={{ fontSize: 18 }}
+                        icon={<Local name='location' color='white' size={20} style={{ marginTop: 20 }} />}
+                    />
+                    <Tab.Item
+                        title='Contab'
+                        titleStyle={{ fontSize: 18 }}
+                        icon={<AccountIcon name='account-box' color='white' size={20} style={{ marginTop: 20 }} />}
+                    />
 
 
-            </Tab>
+                </Tab>
 
-            <TabView
-                value={index}
-                onChange={setIndex}
-                animationType='spring'
-            >
-                <TabView.Item style={{ width: '100%' }}>
-                    <View>
-                        <ScrollView style={styles.containerInput}>
-                            <View>
+                <TabView
+                    value={index}
+                    onChange={setIndex}
+                    animationType='spring'
+                >
+                    <TabView.Item style={{ width: '100%' }}>
+                        <View>
+                            <ScrollView style={styles.containerInput}>
+                                <View>
 
+                                    <Input
+                                        label='CGI'
+                                        labelStyle={styles.label}
+                                        placeholder='Digite o CGI'
+                                        keyboardType='numeric'
+                                        value={cgi}
+                                        onChangeText={(text) => setCgi(text)}
+                                        inputStyle={styles.input}
+                                        disabled={disabled}
+
+
+                                    />
+                                    <Text style={{ fontSize: 16, color: 'grey', fontFamily: 'RobotoMedium', marginStart: 10 }}>Situação</Text>
+                                    <CheckBox
+
+                                        title='Ativo'
+                                        checked={checkedAtv}
+                                        onPress={() => {
+                                            setCheckedAtv(true)
+                                            setCheckedIna(false)
+                                        }}
+                                        disabled={disabled}
+                                    />
+                                    <CheckBox
+                                        title='Inativo'
+                                        checked={checkedIna}
+                                        onPress={() => {
+                                            setCheckedAtv(false)
+                                            setCheckedIna(true)
+                                        }}
+                                        disabled={disabled}
+                                    />
+                                </View>
+                                <Text style={{ fontSize: 16, marginStart: 10, color: 'grey', fontWeight: '500' }}>Representante</Text>
+                                <View style={{ zIndex: 100 }}>
+
+
+                                    <DropDownPicker
+
+                                        style={{ width: 300, marginTop: 5, marginStart: 10, marginBottom: 10, borderColor: 'white' }}
+                                        open={openPicker}
+                                        setOpen={setOpenPicker}
+                                        value={selectedUserRepres}
+                                        setValue={setSelectedUserRepres}
+                                        items={formatUsersRepres}
+                                        setItems={formatUsersRepres}
+                                        onChangeValue={(item) => SearchUser(item)}
+
+                                        scrollViewProps={{
+                                            // Evita conflito de rolagem
+                                            persistentScrollbar: true,
+                                        }}
+
+                                    />
+                                </View>
                                 <Input
-                                    label='CGI'
+                                    label='Tipo de Pessoa'
+                                    placeholder='Fisica ou juridica'
                                     labelStyle={styles.label}
-                                    placeholder='Digite o CGI'
-                                    keyboardType='numeric'
-                                    value={cgi}
-                                    onChangeText={(text) => setCgi(text)}
                                     inputStyle={styles.input}
+                                    value={typeProfile}
+                                    onChangeText={(text) => handleTypeProfile(text)}
                                     disabled={disabled}
 
+                                />
+                                <Input
+                                    label='Data de Cadastro'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    placeholder={dateFormat}
+                                    inputStyle={styles.input}
+                                    value={dateRegister}
+                                    onChangeText={(text) => setDateRegister(text)}
+                                    disabled={true}
 
                                 />
-                                <Text style={{ fontSize: 16, color: 'grey', fontFamily: 'RobotoMedium', marginStart: 10 }}>Situação</Text>
+
+                                <Input
+                                    label='Razão Social'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={Razao}
+                                    onChangeText={(text) => setRazao(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Nome Fantasia'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={fantasy}
+                                    onChangeText={(text) => setFantasy(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='CNPJ'
+                                    labelStyle={styles.label}
+                                    keyboardType='numeric'
+                                    inputStyle={styles.input}
+                                    value={cnpj}
+                                    onChangeText={(text) => setCnpj(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Inscrição Estadual'
+                                    labelStyle={styles.label}
+                                    keyboardType='numeric'
+                                    inputStyle={styles.input}
+                                    value={inscription}
+                                    onChangeText={(text) => setInscription(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Email'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={email}
+                                    onChangeText={(text) => setEmail(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Telefone'
+                                    labelStyle={styles.label}
+                                    keyboardType='numeric'
+                                    inputStyle={styles.input}
+                                    value={telefone}
+                                    onChangeText={(text) => setTelefone(text)}
+                                    disabled={disabled}
+
+                                />
+
+
+
+                            </ScrollView>
+
+                        </View>
+
+                    </TabView.Item>
+                    <TabView.Item style={{ width: '100%' }}>
+                        <KeyboardAvoidingView behavior='padding'>
+
+
+                            <ScrollView style={styles.containerInput}>
+
+                                <Input
+                                    label='UF'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={uf}
+                                    onChangeText={(text) => setUF(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Cidade'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={city}
+                                    onChangeText={(text) => setCity(text)}
+                                    disabled={disabled}
+
+                                />
+
+                                <Input
+                                    label='CEP'
+                                    labelStyle={styles.label}
+                                    keyboardType='numeric'
+                                    inputStyle={styles.input}
+                                    value={cep}
+                                    onChangeText={(text) => setCep(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Endereço'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={adress}
+                                    onChangeText={(text) => setAdress(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Número'
+                                    labelStyle={styles.label}
+                                    keyboardType='numeric'
+                                    inputStyle={styles.input}
+                                    value={num}
+                                    onChangeText={(text) => setNum(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Bairro'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={district}
+                                    onChangeText={(text) => setDistrict(text)}
+                                    disabled={disabled}
+
+                                />
+                                <Input
+                                    label='Complemento'
+                                    labelStyle={styles.label}
+                                    keyboardType='default'
+                                    inputStyle={styles.input}
+                                    value={complement}
+                                    onChangeText={(text) => setComplement(text)}
+                                    disabled={disabled}
+
+                                />
+
+                            </ScrollView>
+
+                        </KeyboardAvoidingView>
+
+                    </TabView.Item>
+
+                    <TabView.Item style={{ width: '100%' }}>
+                        <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }}>
+
+
+                            <ScrollView>
+                                <Text style={{ fontSize: 16, color: 'grey', fontFamily: 'RobotoMedium', marginStart: 10 }}>Mensalidade</Text>
                                 <CheckBox
 
                                     title='Ativo'
@@ -166,194 +623,63 @@ const DataCustomers = () => {
                                     }}
                                     disabled={disabled}
                                 />
-                            </View>
+                                <Input
+                                    label='Nivel'
+                                    value={nivel}
+                                    onChangeText={(text) => setNivel(text)}
+                                    keyboardType='numeric'
+                                    disabled={disabled}
+                                />
+                                <TouchableOpacity
+                                    onPress={() => setOpenCalender(true)}
+                                >
+                                    <Text style={{ color: 'grey', fontSize: 16, marginStart: 10, fontWeight: 600 }}>Validade</Text>
+                                    <Text style={{ color: 'grey', fontSize: 16, marginStart: 10, fontWeight: 600, }}> {dateFormatValid}</Text>
+                                </TouchableOpacity>
+                                {
+                                    openCalender === true ?
+                                        <DateTimePicker
+                                            value={dateValid}
+                                            mode="date"
+                                            is24Hour={true}
+                                            display="default"
+                                            onChange={handleDateChange}
+                                            disabled={disabled}
+                                        />
+                                        : ''
+                                }
 
-                            <Input
-                                label='Tipo de Pessoa'
-                                placeholder='Fisica ou juridica'
-                                labelStyle={styles.label}
-                                inputStyle={styles.input}
-                                value={typeProfile}
-                                onChangeText={(text) => setTypeProfile(text)}
-                                disabled={disabled}
+                                <Input
+                                    label='OBS'
+                                    value={obs}
+                                    onChangeText={(text) => setObs(text)}
+                                    keyboardType='default'
+                                    disabled={disabled}
+                                />
 
-                            />
-                            <Input
-                                label='Data de Cadastro'
-                                labelStyle={styles.label}
-                                placeholder='12/12/1222'
-                                keyboardType='numeric'
-                                inputStyle={styles.input}
-                                value={dateRegister}
-                                onChangeText={(text) => setDateRegister(text)}
-                                disabled={disabled}
+                                <Input
+                                    label='Usuário NFCe'
+                                    value={userNfce}
+                                    onChangeText={(text) => setUserNfce(text)}
+                                    keyboardType='default'
+                                    disabled={disabled}
+                                />
+                                <Input
+                                    label='Senha NFCe'
+                                    value={passwordNfce}
+                                    onChangeText={(text) => setPasswordNfce(text)}
+                                    keyboardType='default'
+                                    secureTextEntry={true}
+                                    disabled={disabled}
+                                />
+                            </ScrollView>
+                        </KeyboardAvoidingView>
+                    </TabView.Item>
+                </TabView>
+                <FabSpeed openTab={openTab} setOpenTab={setOpenTab} edit={Edit} save={Save} itemSelected={itemSelected} />
 
-                            />
-
-                            <Input
-                                label='Razão Social'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={Razao}
-                                onChangeText={(text) => setRazao(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Nome Fantasia'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={fantasy}
-                                onChangeText={(text) => setFantasy(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='CNPJ'
-                                labelStyle={styles.label}
-                                keyboardType='numeric'
-                                inputStyle={styles.input}
-                                value={cnpj}
-                                onChangeText={(text) => setCnpj(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Inscrição Estadual'
-                                labelStyle={styles.label}
-                                keyboardType='numeric'
-                                inputStyle={styles.input}
-                                value={inscription}
-                                onChangeText={(text) => setInscription(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Email'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={email}
-                                onChangeText={(text) => setEmail(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Telefone'
-                                labelStyle={styles.label}
-                                keyboardType='numeric'
-                                inputStyle={styles.input}
-                                value={telefone}
-                                onChangeText={(text) => setTelefone(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Representante'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={representante}
-                                onChangeText={(text) => setRepresentante(text)}
-                                disabled={disabled}
-
-                            />
-
-
-                        </ScrollView>
-
-                    </View>
-
-                </TabView.Item>
-                <TabView.Item style={{ width: '100%' }}>
-                    <View>
-
-
-                        <ScrollView style={styles.containerInput}>
-
-                            <Input
-                                label='UF'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={uf}
-                                onChangeText={(text) => setUF(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Cidade'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={city}
-                                onChangeText={(text) => setCity(text)}
-                                disabled={disabled}
-
-                            />
-
-                            <Input
-                                label='CEP'
-                                labelStyle={styles.label}
-                                keyboardType='numeric'
-                                inputStyle={styles.input}
-                                value={cep}
-                                onChangeText={(text) => setCepS(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Endereço'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={adress}
-                                onChangeText={(text) => setAdress(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Número'
-                                labelStyle={styles.label}
-                                keyboardType='numeric'
-                                inputStyle={styles.input}
-                                value={num}
-                                onChangeText={(text) => setNum(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Bairro'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={district}
-                                onChangeText={(text) => setDistrict(text)}
-                                disabled={disabled}
-
-                            />
-                            <Input
-                                label='Complemento'
-                                labelStyle={styles.label}
-                                keyboardType='default'
-                                inputStyle={styles.input}
-                                value={complement}
-                                onChangeText={(text) => setComplement(text)}
-                                disabled={disabled}
-
-                            />
-
-                        </ScrollView>
-
-                    </View>
-
-                </TabView.Item>
-
-            </TabView>
-            <FabSpeed openTab={openTab} setOpenTab={setOpenTab} edit={Edit} save={Save} />
-        </SafeAreaView>
+            </SafeAreaView >
+        </KeyboardAvoidingView>
     )
 }
 

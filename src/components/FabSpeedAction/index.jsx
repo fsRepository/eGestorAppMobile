@@ -2,7 +2,8 @@ import React from 'react';
 import { View } from 'react-native';
 import { SpeedDial } from '@rneui/themed';
 // import { Container } from './styles';
-export default function FabSpeed({ openTab, setOpenTab, edit, save }) {
+export default function FabSpeed({ openTab, setOpenTab, edit, save, itemSelected }) {
+    console.log(itemSelected)
     return (
 
         <SpeedDial
@@ -13,18 +14,23 @@ export default function FabSpeed({ openTab, setOpenTab, edit, save }) {
             onClose={() => setOpenTab(!openTab)}
             color='#DB6015'
         >
-            <SpeedDial.Action
-                icon={{ name: 'edit', color: 'white' }}
-                title='Editar'
-                onPress={edit}
-                color='#DB6015'
-            />
-            <SpeedDial.Action
-                icon={{ name: 'save', color: 'white' }}
-                title='Salvar'
-                onPress={save}
-                color='#DB6015'
-            />
+            {
+                itemSelected === undefined ? <SpeedDial.Action
+                    icon={{ name: 'save', color: 'white' }}
+                    title='Salvar'
+                    onPress={save}
+                    color='#DB6015'
+
+                /> :
+                    <SpeedDial.Action
+                        icon={{ name: 'edit', color: 'white' }}
+                        title='Editar'
+                        onPress={edit}
+                        color='#DB6015'
+                    />
+
+            }
+
 
 
         </SpeedDial>

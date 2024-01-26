@@ -1,58 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 
 // import { Container } from './styles';
 import { Overlay, Input, Button, CheckBox } from '@rneui/themed';
 
 
-export default function OverlayRender({ openModal, setOpenModal, input, itemSelected, setInput, type }) {
+export default function OverlayRender({ openModal,
+    setOpenModal,
+    input,
+    itemSelected,
+    setInput,
+    type,
+    Save,
+    setStatus,
+    EditItem,
+    status,
+    DeleteItem }) {
 
     const [disabled, setDisabled] = useState(false)
-    const [textButton, setTextButton] = useState('Salvar')
+
 
     const [checkedAtive, setCheckedAtive] = useState(false)
     const [checkedInative, setCheckedInative] = useState(false)
     // SE TIVER UM ITEM SELECIONADO ELE JA ABRE COM O VALOR DO ITEM
-
+    console.log(itemSelected)
     useEffect(() => {
+        if (itemSelected && Object.keys(itemSelected).length !== 0) {
+            setDisabled(true);
 
-        if (itemSelected) {
             if (type === 'motive') {
-                setInput(itemSelected.Motivo)
+                setInput(itemSelected.Motivo);
             } else if (type === 'contact') {
-                setInput(itemSelected.Descricao)
+                setInput(itemSelected.Descricao);
+            } else if (type === 'sistem') {
+                setInput(itemSelected.Sistema)
             }
 
-
-            setDisabled(true)
-            setTextButton('Editar')
             if (itemSelected.Ativo === true) {
-                setCheckedAtive(true)
-                setCheckedInative(false)
+                setCheckedAtive(true);
+                setCheckedInative(false);
             } else {
-                setCheckedInative(true)
-                setCheckedAtive(false)
+                setCheckedInative(true);
+                setCheckedAtive(false);
             }
+        } else {
+
+            setDisabled(false);
+            setInput('')
         }
-
-    }, [])
-
-
+    }, [itemSelected]);
     //função para salvar o item na lista
     function saveItem() {
-        if (textButton === 'Salvar') {
-            alert('salvo')
-        } else {
-            setDisabled(false)
-            setTextButton('Salvar')
+        Save()
+
+    }
+
+    function Update() {
+        setDisabled(false)
+
+        if (disabled === false && input !== itemSelected.Descricao || status !== itemSelected.Ativo) {
+
+
+            EditItem(itemSelected)
         }
 
     }
 
 
+    function Delete() {
+        DeleteItem(itemSelected)
+    }
+
+
     return (
         <View>
-            <Text style={styles.label}>Adicionar Novo meio de contato</Text>
+            {
+                type === 'contact' ?
+                    <Text style={styles.label}>Adicionar Novo meio de contato</Text> :
+                    type === 'motive' ?
+                        <Text style={styles.label}>Adicionar Motivo</Text> : <Text style={styles.label}>Adicionar Sistema</Text>
+            }
+
             <Input
                 placeholder='Ex: WhatsApp'
                 inputContainerStyle={styles.inputContainer}
@@ -70,6 +98,7 @@ export default function OverlayRender({ openModal, setOpenModal, input, itemSele
                     onPress={() => {
                         setCheckedAtive(!checkedAtive)
                         setCheckedInative(false)
+                        setStatus(true)
 
 
                     }}
@@ -82,24 +111,46 @@ export default function OverlayRender({ openModal, setOpenModal, input, itemSele
                     onPress={() => {
                         setCheckedInative(!checkedInative)
                         setCheckedAtive(false)
+                        setStatus(false)
 
 
                     }}
                 />
             </View>
-            <Button
-                onPress={saveItem}
-                title={textButton}
-                buttonStyle={{
-                    backgroundColor:
-                        '#36c389', borderRadius: 6
-                }}
-            />
-            <Button
-                onPress={() => setOpenModal(false)}
-                title='Cancelar'
-                buttonStyle={{ backgroundColor: '#d02d55', marginTop: 10, borderRadius: 6 }}
-            />
+            {
+                itemSelected.length === 0 ? <Button
+                    onPress={saveItem}
+                    title='Salvar'
+                    buttonStyle={{
+                        backgroundColor:
+                            '#36c389', borderRadius: 6
+                    }}
+                /> : ''
+            }
+
+            {
+                itemSelected.length === 0 ? '' :
+                    <Button
+                        onPress={Update}
+                        title='Editar'
+                        buttonStyle={{
+                            backgroundColor:
+                                '#138ae4', borderRadius: 6,
+                            marginTop: 10
+                        }}
+                    />
+            }
+
+            {
+                itemSelected.length === 0 ? '' : (
+                    <Button
+                        onPress={Delete}
+                        title='Excluir'
+                        buttonStyle={{ backgroundColor: '#d02d55', marginTop: 10, borderRadius: 6 }}
+                    />
+                )
+            }
+
         </View>
     )
 }

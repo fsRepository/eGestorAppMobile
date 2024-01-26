@@ -12,7 +12,7 @@ import RouteRegistrations from './RouteRegistrations';
 import MeansContact from '../screens/registrations/meansContact';
 import Motives from '../screens/motive';
 import Sistems from '../screens/systems';
-
+import Routes from '.';
 // import { Container } from './styles';
 
 export default function RouteDrawer({ Navigation }) {
@@ -72,7 +72,7 @@ export default function RouteDrawer({ Navigation }) {
 
                 }}
             />
-            <Drawer.Screen component={Login} name='login'
+            <Drawer.Screen component={Routes} name='login'
                 options={{
                     title: 'Sair',
                     headerShown: false

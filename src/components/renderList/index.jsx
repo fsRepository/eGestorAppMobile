@@ -8,7 +8,23 @@ import OnlineIcon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native';
 // import { Container } from './styles';
 
-export default function RenderList({ item, type, }) {
+export default function RenderList({ item, type,
+    contact,
+    setContact,
+    email,
+    setEmail,
+    setPassword,
+    password,
+    status,
+    setStatus,
+    Adm,
+    setAdm,
+    Representante,
+    setRepresentante,
+    EditItem,
+    DeleteItem
+
+}) {
 
     const [openModal, setOpenModal] = useState(false);
     const [itemSelected, setItemSelected] = useState([])
@@ -16,15 +32,19 @@ export default function RenderList({ item, type, }) {
     const navigation = useNavigation()
 
 
-
-    async function selectedContact() {
+    async function selectedContact(item) {
         console.log(item)
         if (type === 'Contact') {
             setItemSelected(item)
             setOpenModal(true)
         } else if (type === 'Customers') {
             setItemSelected(item)
-            navigation.navigate('datacustomers', { itemSelected: itemSelected, type: type })
+            if (itemSelected.length !== 0) {
+                navigation.navigate('datacustomers', { itemSelected: itemSelected, type: type })
+            } else {
+                console.warn('itemSelected ainda nao esta preenchido')
+            }
+
 
         } else if (type === 'counter') {
             setItemSelected(item)
@@ -130,7 +150,26 @@ export default function RenderList({ item, type, }) {
                 <View style={styles.modalContainer}>
                     <View style={styles.modal}>
                         <View >
-                            <ModalAdd itemSelected={itemSelected} closeModal={() => setOpenModal(false)} type={type} />
+                            <ModalAdd
+                                itemSelected={itemSelected}
+                                closeModal={() => setOpenModal(false)}
+                                type={type}
+                                contact={contact}
+                                setContact={setContact}
+                                email={email}
+                                setEmail={setEmail}
+                                setPassword={setPassword}
+                                password={password}
+                                status={status}
+                                setStatus={setStatus}
+                                Adm={Adm}
+                                setAdm={setAdm}
+                                Representante={Representante}
+                                setRepresentante={setRepresentante}
+                                EditItem={EditItem}
+                                DeleteItem={DeleteItem}
+
+                            />
                         </View>
                     </View>
                 </View>
@@ -173,7 +212,8 @@ const styles = StyleSheet.create({
         height: 500,
         backgroundColor: 'white',
         borderRadius: 10,
-        elevation: 5
+        elevation: 5,
+
     },
     situation: {
         fontSize: 16,

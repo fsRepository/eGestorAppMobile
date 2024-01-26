@@ -19,6 +19,7 @@ export default function Telephone() {
     console.log(openModal)
 
     const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState('Nome')
 
 
     useEffect(() => {
@@ -35,8 +36,10 @@ export default function Telephone() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <View style={{ zIndex: 1000 }}>
+                <SearchBarComponent search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} />
+            </View>
 
-            <SearchBarComponent search={search} setSearch={setSearch} />
 
             {
                 loading === true ? <ActivityIndicator size='large' color='#DB6015' /> :
@@ -78,7 +81,7 @@ export default function Telephone() {
                 <View style={styles.modalContainer}>
                     <View style={styles.modal}>
                         <View >
-                            <ModalAdd closeModal={() => setOpenModal(false)} />
+                            <ModalAdd closeModal={() => setOpenModal(false)} customers={Customers} type='Contact' />
                         </View>
                     </View>
                 </View>

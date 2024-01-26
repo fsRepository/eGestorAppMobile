@@ -24,6 +24,7 @@ export default function Header({ setSelectedPicker, selectedPicker, initialpicke
 
                 <DropDownPicker
                     style={styles.picker}
+                    containerStyle={{ width: 200, zIndex: 100 }}
                     open={open}
                     value={selectedPicker}
                     items={attendantsLabel}

@@ -121,13 +121,17 @@ export default function Calleds() {
             <View style={{
                 flexDirection: 'row',
                 marginEnd: 140,
-                alignItems: 'center'
+                alignItems: 'center',
+                zIndex: 500
             }}>
                 <Header selectedPicker={selectedPicker} setSelectedPicker={setSelectedPicker} />
                 <DatePickerHeader />
             </View>
             <View style={{ marginTop: 10 }}>
-                <SearchBarComponent search={search} setSearch={setSearch} />
+                <View style={{ zIndex: 5000 }}>
+                    <SearchBarComponent search={search} setSearch={setSearch} />
+                </View>
+
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 10, marginEnd: 10 }}>
                     <Button title='Filtrar'
                         containerStyle={{ width: 100, height: 50, marginTop: 5, }}
@@ -143,7 +147,7 @@ export default function Calleds() {
 
             </View>
 
-            <View>
+            <View style={{ zIndex: -1 }}>
 
 
                 <FlatList

@@ -9,10 +9,14 @@ import FABComponent from '../../../components/FAB'
 export default function Counter() {
 
     const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState('Nome')
     const [loading, setLoading] = useState(false)
     return (
         <View style={styles.container}>
-            <SearchBarComponent search={search} setSearch={setSearch} />
+            <View style={{ zIndex: 1000 }}>
+                <SearchBarComponent search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} />
+            </View>
+
 
             <FlatList
                 data={listaDeContatos}
