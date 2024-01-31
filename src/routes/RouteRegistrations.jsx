@@ -19,7 +19,7 @@ export default function RouteRegistrations() {
                 tabBarLabelStyle: { color: 'black' },
             }}
         >
-            {/*  <tab.Screen
+            <tab.Screen
                 component={Telephone}
                 name='agend-telephone'
                 options={{
@@ -40,7 +40,7 @@ export default function RouteRegistrations() {
 
                 }}
             />
-*/ }
+
             <tab.Screen
                 component={RegisterCustomers}
                 name='customers'

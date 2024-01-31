@@ -1,8 +1,9 @@
 import React from 'react';
 import { View } from 'react-native';
 import { SpeedDial } from '@rneui/themed';
+import Trash from 'react-native-vector-icons/Feather'
 // import { Container } from './styles';
-export default function FabSpeed({ openTab, setOpenTab, edit, save, itemSelected }) {
+export default function FabSpeed({ openTab, setOpenTab, edit, save, itemSelected, DeleteItem }) {
     console.log(itemSelected)
     return (
 
@@ -21,13 +22,24 @@ export default function FabSpeed({ openTab, setOpenTab, edit, save, itemSelected
                     onPress={save}
                     color='#DB6015'
 
-                /> :
-                    <SpeedDial.Action
-                        icon={{ name: 'edit', color: 'white' }}
-                        title='Editar'
-                        onPress={edit}
-                        color='#DB6015'
-                    />
+                /> : (
+                    <View>
+                        <SpeedDial.Action
+                            icon={{ name: 'edit', color: 'white' }}
+                            title='Editar'
+                            onPress={edit}
+                            color='#DB6015'
+                        />
+                        <SpeedDial.Action
+                            icon={{ name: 'close', color: 'white' }}
+                            title='Excluir'
+                            onPress={DeleteItem}
+                            color='#DB6015'
+                        />
+                    </View>
+
+                )
+
 
             }
 

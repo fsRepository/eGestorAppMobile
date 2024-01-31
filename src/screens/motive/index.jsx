@@ -254,7 +254,8 @@ const styles = StyleSheet.create({
     container: {
         marginStart: 10,
         marginEnd: 10,
-        marginTop: 10
+        marginTop: 10,
+        flex: 1
     },
 
     content: {

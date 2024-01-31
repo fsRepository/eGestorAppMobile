@@ -20,7 +20,16 @@
       "permissions": [
         "CAMERA",
         "PHOTO_LIBRARY"
-      ]
+      ],
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "YOUR_RESERVERD_CLIENT_ID"
+        }
+      },
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Your app needs access to the photo library",
+        "NSPhotoLibraryAddUsageDescription": "Your app needs access to the photo library"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +37,8 @@
         "backgroundColor": "#ffffff",
         "permissions": [
           "CAMERA",
-          "READ_EXTERNAL_STORAGE"
+          "READ_EXTERNAL_STORAGE",
+          "WRITE_EXTERNERAL_STORAGE"
         ]
       }
     },

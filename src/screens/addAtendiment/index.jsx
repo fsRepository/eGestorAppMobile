@@ -1,50 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Input, Button, Tab, TabView, CheckBox } from '@rneui/themed';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { listaDeContatos } from '../../services/baseDadosTeste';
+import { listaDeContatos, } from '../../services/baseDadosTeste';
 import { format } from 'date-fns'
-import { motivos } from '../../services/baseDadosTeste';
+import { ContextAuth } from '../../context';
 // import { Container } from './styles';
 import Icon from 'react-native-vector-icons/AntDesign'
+import { useRoute } from '@react-navigation/native';
+import FabSpeed from '../../components/FabSpeedAction';
+import SearchBarComponent from '../../components/searchBarComponent';
+
 
 export default function AddAtendimentt() {
+    const { LoadMotives, motives, user, LoadClients, Customers, LoadUsers,
+        users,
+        userRepres, LoadItems,
+        contactMethods, LoadSituations,
+        situations, } = useContext(ContextAuth)
 
     //const com os tipos de filtros
-    const [filters, setFilters] = useState([
 
 
-        {
-            label: 'CGI',
-            value: 'CGI'
-        },
-        {
-            label: 'Nome Fantasia',
-            value: 'Nome Fantasia'
-        },
-        {
-            label: 'Razão Social',
-            value: 'Razão Social'
-        },
-        {
-            label: 'CNPJ/CPF',
-            value: 'CNPJ/CPF'
-        }
-    ])
-    const [contactMethods, setMethods] = useState([
-        { id: '1', type: 'Telefone', value: '(11) 1234-5678' },
-        { id: '2', type: 'E-mail', value: 'exemplo@email.com' },
-        { id: '3', type: 'WhatsApp', value: '(11) 98765-4321' },
-        { id: '4', type: 'Discord', value: 'linkedin.com/in/exemplo' },
-        { id: '5', type: 'Chat Online', value: '@exemplo' },
-        { id: '6', type: 'Escritório', value: '@exemplo' },
-        { id: '7', type: 'Visita Externa', value: '@exemplo' },
 
-    ])
-    const contacts = contactMethods.map((item) => ({
-        label: item.type,
-        value: item.type
-    }))
 
     //controle do estado do dropdown
     const [openDrop, setOpenDrop] = useState(false)
@@ -68,37 +46,115 @@ export default function AddAtendimentt() {
     const [selectedAtendentTransfer, setSelectedAtendentTranfer] = useState('')
     const [statusSelected, setStatusSelected] = useState('')
     const [ckekboxVisible, setChekVisible] = useState(false)
+    const [openTab, setOpenTab] = useState(false)
     //pega a data atual e salva na const
-    const [date, setDate] = useState('')
-    const [hour, setHour] = useState('')
+    const [date, setDate] = useState(new Date());
+    const [hour, setHour] = useState(new Date());
 
+    const [dateEnd, setDateEnd] = useState('')
+
+    //recebe o item clicado
+    const route = useRoute();
+    const { item } = route.params || {};
 
     //serve para controlar cada tabview
     const [index, setIndex] = useState(0)
 
-    const dateActually = new Date()
+    //pesquisa do searchbar
+    const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState('')
 
+    //salvar o cliente ao pesquisar
+    const [filteredCustomers, setFilteredCostumers] = useState([])
 
+    //carrega os motivos
     useEffect(() => {
-        const formateDate = format(dateActually, 'dd/MM/yyy')
-        console.log(formateDate)
-        const formateHour = format(dateActually, 'HH:mm:ss')
-        console.log(formateHour)
-        setDate(formateDate)
-        setHour(formateHour)
 
+
+        LoadMotives()
+        LoadClients()
+        LoadUsers()
+        LoadItems()
+        LoadSituations()
 
     }, [])
 
+
+    //se caso tiver um item selecionado, ele seta com as informações
+    useEffect(() => {
+
+        if (item) {
+            setProtocol(item.Protocolo)
+            setSolicit(item.Solicitante)
+            setPhone(item.Telefone)
+            setSelectedAtendent(item.Atendente)
+            setSelectedCustomer(item.Titulo)
+            setSelectedContact(item.Tipo_contato)
+            setDate(item.Data_atend_ini)  // Certifique-se de que seja um objeto Date válido
+            setHour(item.Hora_atendimento)
+            setSelectedSistem(item.Ocorrencias[0].Sistema)
+            setDesc(item.Ocorrencias[0].Descricao)
+            setReason(item.Ocorrencias[0].Motivo)
+            setSolution(item.Ocorrencias[0].Solucao)
+            setTrello(item.Link)
+            setSelectedAtendentTranfer(item.Transferido)
+            setStatusSelected(item.Situacao)
+            setSelectedView(item.Ocorrencias[0].Tela)
+        }
+    }, [item])
+
+
+    //formata data e hora
+    function formatDt(value) {
+        console.log(value); // Adicione este log
+        const formateDate = format(value, 'dd/MM/yyyy');
+        return formateDate;
+    }
+
+    function Formathr(value) {
+        console.log(value); // Adicione este log
+        const formateHour = format(value, 'HH:mm:ss');
+        return formateHour;
+    }
+
+
+
+
+
     //função para percorrer a lista de contatos e pegar somente os nomes dos clientes
-    const customer = listaDeContatos.map((item) => ({
-        label: item.empresa,
-        value: item.empresa
+    const customer = Customers.map((item) => ({
+        label: item.NomeFantasia,
+        value: item.UID
     }))
-    const atendants = listaDeContatos.map((item) => ({
-        label: item.nomeContato,
-        value: item.nomeContato
+    const atendants = users.map((item) => ({
+        label: item.Nome,
+        value: item.UID
     }))
+    const contacts = contactMethods.map((item) => ({
+        label: item.Descricao,
+        value: item.Descricao
+    }))
+    const situation = situations.map((item) => ({
+        label: item.Descricao,
+        value: item.Descricao
+    }))
+
+
+    //QUANDO O CLIENTE FOR SELECIONADO, QUERO PEGAR O CGI DELE ALTOMATICAMENTE
+    function LoadCGIClient() {
+        console.log('uid do cliente', selectedCustomer)
+        if (selectedCustomer != null) {
+            const searchUID = Customers.filter((item) => item.UID.includes(selectedCustomer))
+            console.log('comparando', selectedCustomer, 'com', searchUID[0].CGI)
+            setCgi(searchUID[0].CGI)
+
+        }
+    }
+
+    useEffect(() => {
+
+        LoadCGIClient()
+    }, [selectedCustomer])
 
     function handleCheked(id) {
         setReason(id)
@@ -140,34 +196,42 @@ export default function AddAtendimentt() {
             <TabView value={index} onChange={setIndex} animationType='spring'>
                 <TabView.Item style={{ width: '100%' }}>
 
-                    <ScrollView style={styles.container}>
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        style={styles.container}>
+
+                        {
+                            item ? '' :
+                                <View style={{ zIndex: 500 }}>
+                                    <SearchBarComponent
+                                        search={search}
+                                        OnSearch={setSearch}
+                                        filter={selectedFilter}
+                                        setFilter={setSelectedFilter}
+                                        type='addAtendiment'
+                                    />
 
 
+                                </View>
+
+                        }
 
 
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, backgroundColor: 'white', width: 200, padding: 6, borderRadius: 6, marginBottom: 5 }}>
-                            <View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, width: 200, padding: 6, borderRadius: 6, marginBottom: 5 }}>
+
+
+                            <View style={{ backgroundColor: 'white', padding: 6 }}>
                                 <Text style={styles.label}>Data</Text>
-                                <Text>{date}</Text>
+                                <Text>{formatDt(date).toString()}</Text>
                             </View>
-                            <View>
+                            <View style={{ backgroundColor: 'white', padding: 6 }}>
                                 <Text style={styles.label}>Hora</Text>
-                                <Text>{hour}</Text>
+                                <Text>{Formathr(hour).toString()}</Text>
                             </View>
                         </View>
-                        <View>
-                            <Text style={styles.label}>Filtro</Text>
-                            <DropDownPicker
-                                style={styles.picker}
-                                items={filters}
-                                open={openDrop}
-                                value={selectedFilter}
-                                setOpen={setOpenDrop}
-                                setValue={setSelectedFilter}
-                                setItems={setFilters}
-                                placeholder='Todos'
+                        <View style={{ justifyContent: 'center' }}>
 
-                            />
+
                             <Text style={styles.label}>Cliente</Text>
                             <DropDownPicker
                                 style={styles.picker}
@@ -176,11 +240,11 @@ export default function AddAtendimentt() {
                                 value={selectedCustomer}
                                 setOpen={setOpenDropCustomer}
                                 setValue={setSelectedCustomer}
-                                setItems={setFilters}
-                                placeholder='Todos'
+
+                                placeholder={item ? selectedCustomer : 'Todos'}
 
                             />
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+                            <View >
                                 <View>
                                     <Text style={styles.label}>CGI</Text>
                                     <Input
@@ -189,22 +253,45 @@ export default function AddAtendimentt() {
                                         keyboardType='numeric'
                                         inputStyle={{ borderWidth: 1, borderRadius: 6, backgroundColor: 'white', borderColor: 'white' }}
                                         containerStyle={{ width: 100, }}
+                                        disabled={true}
                                     />
 
                                 </View>
 
-                                <View>
-                                    <Text style={styles.label}>Protocolo</Text>
-                                    <Input
-                                        value={protocol}
-                                        onChangeText={(text) => { setProtocol(text) }}
-                                        keyboardType='numeric'
-                                        inputStyle={{ borderWidth: 1, borderRadius: 6, backgroundColor: 'white', borderColor: 'white' }}
-                                        containerStyle={{ width: 100, }}
-                                    />
 
 
-                                </View>
+
+
+
+
+
+
+
+                            </View>
+
+                            <View>
+                                <Text style={styles.label}>Protocolo</Text>
+                                {
+                                    item ?
+                                        <Text style={{
+                                            borderRadius: 6,
+                                            backgroundColor: 'white',
+                                            borderColor: 'white',
+                                            fontSize: 18,
+                                            marginStart: 10,
+                                            width: 100, marginBottom: 10, height: 40
+                                        }}>{protocol}</Text> :
+                                        <Input
+                                            value={protocol}
+                                            onChangeText={(text) => { setProtocol(text) }}
+                                            keyboardType='numeric'
+                                            inputStyle={{ borderWidth: 1, borderRadius: 6, backgroundColor: 'white', borderColor: 'white' }}
+                                            containerStyle={{ width: 100, }}
+                                            disabled={true}
+                                        />
+                                }
+
+
                             </View>
 
                         </View>
@@ -232,13 +319,13 @@ export default function AddAtendimentt() {
                         <Text style={styles.label}>Atendente</Text>
                         <DropDownPicker
                             style={styles.picker}
-                            items={customer}
+                            items={atendants}
                             open={openDropAtendant}
                             value={selectedAtendent}
                             setOpen={setOpenDropAtendant}
                             setValue={setSelectedAtendent}
-                            setItems={setFilters}
-                            placeholder='Todos'
+
+                            placeholder={item ? selectedAtendent : 'Todos'}
 
                         />
                         <Text style={styles.label}>Meios de Contato</Text>
@@ -249,12 +336,12 @@ export default function AddAtendimentt() {
                             value={selectedContac}
                             setOpen={setOpenDropContact}
                             setValue={setSelectedContact}
-                            setItems={setFilters}
-                            placeholder='Todos'
+
+                            placeholder={item ? selectedContac : 'Todos'}
 
                         />
                         {
-                            selectedContac === 'WhatsApp' ?
+                            selectedContac === 'WHATSAPP' ?
                                 <View>
 
 
@@ -265,6 +352,7 @@ export default function AddAtendimentt() {
                                         keyboardType='numeric'
                                         inputStyle={styles.input}
                                         containerStyle={styles.containerInput}
+                                        disabled={true}
                                     />
                                 </View> : null
                         }
@@ -278,18 +366,20 @@ export default function AddAtendimentt() {
                 </TabView.Item>
                 <TabView.Item style={{ width: "100%" }}>
 
-                    <ScrollView style={styles.container}>
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        style={styles.container}>
                         <Text style={styles.label}>Motivo</Text>
                         {
                             ckekboxVisible ?
-                                motivos.map((item) =>
+                                motives.map((item) =>
                                 (
                                     <CheckBox
                                         center
-                                        title={item.nome}
+                                        title={item.Motivo}
                                         checkedColor='green'
-                                        checked={reason === item.id}
-                                        onPress={() => handleCheked(item.id)}
+                                        checked={reason === item.Motivo}
+                                        onPress={() => handleCheked(item.Motivo)}
                                     />
                                 )
                                 )
@@ -305,7 +395,7 @@ export default function AddAtendimentt() {
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5, backgroundColor: 'white', padding: 6 }}>
 
                                     <Icon name='checksquareo' size={24} color='green' />
-                                    <Text style={styles.label}>{motivos.find(motivo => motivo.id === reason).nome}</Text>
+                                    <Text style={styles.label}>{reason}</Text>
                                 </View>
                             ) : ''
                         }
@@ -318,17 +408,29 @@ export default function AddAtendimentt() {
                             inputStyle={styles.input}
                             containerStyle={[styles.containerInput, { marginTop: 10 }]}
                         />
+
+                        <Input
+
+                            label='Tela'
+                            value={selectedView}
+                            onChangeText={(text) => setSelectedView(text)}
+                            inputStyle={styles.input}
+                            containerStyle={[styles.containerInput, { marginTop: 10 }]}
+                        />
                         <Input
 
                             label='Descrição'
+                            multiline
                             value={desc}
                             onChangeText={(text) => setDesc(text)}
                             inputStyle={styles.input}
-                            containerStyle={[styles.containerInput]}
+                            containerStyle={[styles.containerInput, { flexWrap: 'wrap' }]}
+
                         />
                         <Input
 
                             label='Solução'
+                            multiline
                             value={solution}
                             onChangeText={(text) => setSolution(text)}
                             inputStyle={styles.input}
@@ -351,20 +453,20 @@ export default function AddAtendimentt() {
                             value={selectedContac}
                             setOpen={setOpenDropContact}
                             setValue={setSelectedContact}
-                            setItems={setFilters}
-                            placeholder='Todos'
+
+                            placeholder={item ? selectedAtendentTransfer : 'Todos'}
 
                         />
 
                         <Text style={styles.label}>Situação</Text>
                         <DropDownPicker
                             style={styles.picker}
-                            items={atendants}
-                            open={openDropContact}
-                            value={selectedContac}
-                            setOpen={setOpenDropContact}
-                            setValue={setSelectedContact}
-                            setItems={setFilters}
+                            items={situation}
+                            open={openDropCustomer}
+                            value={statusSelected}
+                            setOpen={setOpenDropCustomer}
+                            setValue={setStatusSelected}
+
                             placeholder='Todos'
 
                         />
@@ -373,7 +475,9 @@ export default function AddAtendimentt() {
 
                     </ScrollView>
                 </TabView.Item>
+
             </TabView>
+            <FabSpeed openTab={openTab} setOpenTab={setOpenTab} itemSelected={item} />
         </SafeAreaView>
 
     )
@@ -384,12 +488,12 @@ const styles = StyleSheet.create({
         marginStart: 10,
         marginEnd: 10,
         marginTop: 10,
-        marginBottom: 10
+
     },
     title: {
         fontSize: 20,
         fontFamily: 'RobotoMedium',
-        marginTop: 10
+
 
     },
     picker: {
@@ -409,7 +513,7 @@ const styles = StyleSheet.create({
 
     },
     input: {
-        width: 300,
+        width: 400,
         borderWidth: 1,
         borderRadius: 6,
         backgroundColor: 'white',
@@ -417,8 +521,29 @@ const styles = StyleSheet.create({
 
 
     },
-    containerInput: {
-        width: 300,
 
-    }
+    title: {
+        marginTop: 30,
+        fontSize: 20,
+        marginStart: 10,
+        fontFamily: 'RobotoMedium',
+        color: 'white', marginBottom: 10
+    },
+
+    containerInput: {
+        marginTop: 10,
+        marginEnd: 10,
+        width: 400
+    },
+
+    input: {
+        borderBottomWidth: 1,
+        borderColor: '#e6e6e6e6',
+        width: 300
+    },
+    inputFocus: {
+        borderBottomWidth: 1,
+        borderColor: '#DB6015',
+        width: 300
+    },
 })

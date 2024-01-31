@@ -26,6 +26,7 @@ export default function ContextProvider({ children }) {
     const [situations, setSituations] = useState([])
     const [users, setUsers] = useState([])
 
+
     function login(username, password) {
         setLoading(true)
         try {
@@ -241,6 +242,9 @@ export default function ContextProvider({ children }) {
     }
     //função para percorrer os ususarios que sao representantes
     const userRepres = users.filter(user => user.Representante === true);
+
+
+
 
     return (
 

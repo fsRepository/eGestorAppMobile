@@ -42,7 +42,7 @@ export default function RouteDrawer({ Navigation }) {
 
             />
 
-            <Drawer.Screen component={Calleds} name='calleds'
+            <Drawer.Screen component={RouterTab} name='calleds'
                 options={{
                     title: 'Atendimentos'
                 }}

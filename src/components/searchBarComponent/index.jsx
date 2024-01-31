@@ -29,6 +29,45 @@ export default function SearchBarComponent({ search, setSearch, filter, setFilte
 
     ])
 
+    const [filtercalleds, setFilterCalleds] = useState([
+
+        {
+            value: 'Todos',
+            label: 'Todos'
+
+        },
+        {
+            value: 'Cliente',
+            label: 'Cliente'
+
+        },
+        {
+            value: 'Atendente',
+            label: 'Atendente'
+
+        },
+    ])
+
+    const [filters, setFilters] = useState([
+
+
+        {
+            label: 'CGI',
+            value: 'CGI'
+        },
+        {
+            label: 'Nome Fantasia',
+            value: 'Nome Fantasia'
+        },
+        {
+            label: 'Razão Social',
+            value: 'Razão Social'
+        },
+        {
+            label: 'CNPJ/CPF',
+            value: 'CNPJ/CPF'
+        }
+    ])
     const [openPicker, SetOpenPicker] = useState(false
     )
 
@@ -66,7 +105,8 @@ export default function SearchBarComponent({ search, setSearch, filter, setFilte
                     }}
                     open={openPicker}
                     setOpen={SetOpenPicker}
-                    items={type === 'users' ? filterUser : filterItems}
+                    items={type === 'users' ?
+                        filterUser : type === 'clients' ? filterItems : type === 'calleds' || 'Contacts' ? filterUser : type === 'addAtendiment' ? filters : filtercalleds}
                     setItems={filterItems}
                     setValue={setFilter}
                     value={filter}

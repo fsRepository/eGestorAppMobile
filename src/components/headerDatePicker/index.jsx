@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 
 
-export default function DatePickerHeader() {
+export default function DatePickerHeader({ setDateStart, setDateEndd }) {
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState(new Date());
     const [dateEnd, setDateEnd] = useState(new Date());
@@ -24,9 +24,12 @@ export default function DatePickerHeader() {
         if (selectedDate) {
             if (pickerType === 'start') {
                 setDate(selectedDate);
+                setDateStart(selectedDate)
+
                 console.log("Data de início selecionada:", selectedDate);
             } else if (pickerType === 'end') {
                 setDateEnd(selectedDate);
+                setDateEndd(selectedDate)
                 console.log("Data de fim selecionada:", selectedDate);
             }
         }

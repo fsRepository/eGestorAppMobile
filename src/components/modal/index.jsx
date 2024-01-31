@@ -25,7 +25,7 @@ export default function ModalRender({ closeModal }) {
                     Toast.show({
                         type: 'success',
                         text1: 'Email enviado!',
-                        text2: 'Em breve te enviaremos um email com mais informações'
+                        text2: 'Em breve te enviaremos um email com sua nova senha'
                     })
                     setEmail('')
                     await closeModal()
@@ -50,7 +50,7 @@ export default function ModalRender({ closeModal }) {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Insira seu endereço de email</Text>
-            <Text style={styles.p} > e nós o ajudaremos a recuperar sua senha.</Text>
+            <Text style={styles.p} >nós enviaremos um link para que você possa redefinir sua senha.</Text>
             <Input
                 containerStyle={{
                     width: 350, height: 40, borderRadius: 2, backgroundColor: '#e9e9e9',

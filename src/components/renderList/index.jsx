@@ -22,7 +22,13 @@ export default function RenderList({ item, type,
     Representante,
     setRepresentante,
     EditItem,
-    DeleteItem
+    DeleteItem,
+    setNumber,
+    setClient,
+    setVinculed,
+    number,
+    client,
+    vinculed
 
 }) {
 
@@ -68,8 +74,8 @@ export default function RenderList({ item, type,
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Icon name='contact-page' size={30} color='#DB6015' />
                             <View style={styles.content}>
-                                <Text style={styles.name}>{item.Nome}</Text>
-                                <Text style={styles.number}>Telefone: {item.Telefone}</Text>
+                                <Text style={styles.name}>{item.Contato}</Text>
+                                <Text style={styles.number}>Telefone: {item.Numero}</Text>
 
                             </View>
                         </View>
@@ -168,6 +174,14 @@ export default function RenderList({ item, type,
                                 setRepresentante={setRepresentante}
                                 EditItem={EditItem}
                                 DeleteItem={DeleteItem}
+                                setNumber={setNumber}
+                                setClient={setClient}
+                                setVinculed={setVinculed}
+                                number={number}
+                                client={client}
+                                vinculed={vinculed}
+                                setItemSelected={setItemSelected}
+
 
                             />
                         </View>

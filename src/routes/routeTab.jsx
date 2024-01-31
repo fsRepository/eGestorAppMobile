@@ -1,11 +1,10 @@
 import React from 'react';
-import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import Home from '../screens/home';
 import Icon from 'react-native-vector-icons/Ionicons'
-import RegisterProfile from '../screens/registrations/RegisterCustomers';
-import Telephone from '../screens/registrations/telephone';
-// import { Container } from './styles';
+import Calleds from '../screens/calleds';
+import CalledIcon from 'react-native-vector-icons/MaterialIcons'
+import CrmIcon from 'react-native-vector-icons/FontAwesome5'
+import CalledsCRM from '../screens/calledsCRM';
 
 export default function RouterTab() {
 
@@ -15,22 +14,45 @@ export default function RouterTab() {
     return (
         <Tab.Navigator
             screenOptions={{
-                headerShown: false
+                headerShown: false,
+                tabBarLabel: { color: 'black' }
 
             }}
         >
-            <Tab.Screen name='home' component={Home}
+            <Tab.Screen name='calleds' component={Calleds}
                 options={{
-                    tabBarLabel: 'Home',
+                    tabBarLabel: 'Ligações',
+
                     tabBarIcon({ focused, color, size }) {
                         if (focused) {
                             return (
-                                <Icon name='home' size={size} color='#DB6015' />
+                                <CalledIcon name='wifi-calling' size={size} color='#DB6015' />
                             )
                         } else {
                             return (
 
-                                <Icon name='home-outline' size={size} color={color} />
+                                <CalledIcon name='wifi-calling' size={size} color={color} />
+                            )
+                        }
+                    }
+
+
+                }}
+
+            />
+            <Tab.Screen name='crm' component={CalledsCRM}
+                options={{
+                    tabBarLabel: 'CRM',
+
+                    tabBarIcon({ focused, color, size }) {
+                        if (focused) {
+                            return (
+                                <CrmIcon name='users-cog' size={size} color='#DB6015' />
+                            )
+                        } else {
+                            return (
+
+                                <CrmIcon name='users-cog' size={size} color={color} />
                             )
                         }
                     }

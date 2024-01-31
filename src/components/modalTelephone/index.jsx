@@ -25,7 +25,14 @@ export default function ModalAdd({
     setAdm,
     Representante,
     setRepresentante,
-    DeleteItem
+    DeleteItem,
+    setNumber,
+    setClient,
+    setVinculed,
+    number,
+    client,
+    vinculed,
+    setItemSelected
 
 }) {
     const [focusContact, setFocusContact] = useState(false)
@@ -33,20 +40,23 @@ export default function ModalAdd({
     const [focusNumber, setFocusNumber] = useState(false)
 
 
-    const [number, setNumber] = useState('')
+
     const [customer, setCustomer] = useState('')
-    const [disabled, setDisabled] = useState(true)
+    const [disabled, setDisabled] = useState(false)
     const [textButton, setTextButton] = useState('Editar')
     const [customerName, setCustomerName] = useState([])
-    const [selectedPicker, setSelectedPicker] = useState('')
+
     const [openPicker, setOpenPicker] = useState(false)
 
+
+    //depois que acahar o nome do cliente com basse no uid ele salva na const
+    const [searchName, setSearchName] = useState([])
 
     //checkbox
     const [checkAdm, setCheckAdm] = useState(false)
     const [checkRepres, setCheckRepres] = useState(false)
     const [checkStatus, setCheckStatus] = useState(false)
-
+    const [localVinculed, setLocalVinculed] = useState(vinculed);
 
 
     const { loading, LoadClients, Customers } = useContext(ContextAuth)
@@ -57,15 +67,15 @@ export default function ModalAdd({
     useEffect(() => {
 
         function loadDataCustomers() {
-            if (!itemSelected) {
-                const dataCustomer = Customers.map((item) => ({
-                    value: item.NomeFantasia,
-                    label: item.NomeFantasia
-                }))
 
-                setCustomerName(dataCustomer)
+            const dataCustomer = Customers.map((item) => ({
+                value: item.UID,
+                label: item.NomeFantasia
+            }))
 
-            }
+            setCustomerName(dataCustomer)
+
+
         }
         loadDataCustomers()
 
@@ -73,28 +83,61 @@ export default function ModalAdd({
     }, [])
 
 
+    // Atualizar o estado local vinculed quando itemSelected mudar
+    useEffect(() => {
+        if (itemSelected) {
+            setLocalVinculed(itemSelected.Vinculado);
+        }
+    }, [itemSelected]);
+
+    //função pra pegar o uid do cliente selecionado e encontrar o seu nome
+
+
+    function convertUidName() {
+        if (itemSelected && type === 'Contact') {
+            const searchClient = Customers.filter((item) => item.UID.includes(itemSelected.UIDCliente))
+
+
+            setSearchName(searchClient)
+            console.log(searchClient)
+        }
+
+    }
+
+
+
     //sempre que o modal for aberto vai ser verificado se tem um item selecionado, se tiver ele recupera os dados e coloca 
     //nos inputs, se nao o input começa vazio
     useEffect(() => {
         if (itemSelected) {
+            setDisabled(true)
             if (type === 'addUser') {
                 setContact(itemSelected.Nome)
                 setEmail(itemSelected.Email)
                 setPassword(itemSelected.Password)
 
+
+
             } else if (type === 'Contact') {
-                setContact(itemSelected.Nome)
-                setCustomer(itemSelected.NomeFantasia)
-                setNumber(itemSelected.Telefone)
+                setContact(itemSelected.Contato)
+                setNumber(itemSelected.Numero)
 
             }
         }
-        else {
+        if (!itemSelected && type === 'addUser') {
             setDisabled(false)
             setContact('')
             setEmail('')
             setPassword('')
+        } if (!itemSelected && type === 'Contact') {
+            setContact('')
+            setClient('')
+            setNumber('')
         }
+        if (itemSelected) {
+            convertUidName()
+        }
+
 
     }, [])
 
@@ -112,13 +155,20 @@ export default function ModalAdd({
         setFocusNumber(false)
     }
 
-
-
     //verificar os chekboxs que foram marcados pra enviar pro screen pai
+    //dependendo do type
+    async function Set() {
+        if (type === 'addUser') {
+            setStatus(checkStatus)
+            setAdm(checkAdm)
+            setRepresentante(checkRepres)
+        }
+
+    }
+
+
     useEffect(() => {
-        setStatus(checkStatus)
-        setAdm(checkAdm)
-        setRepresentante(checkRepres)
+        Set()
     }, [checkAdm, checkRepres, checkStatus])
 
 
@@ -165,37 +215,46 @@ export default function ModalAdd({
                     onChangeText={(text) => setContact(text)}
                     disabled={disabled}
                 />
+
+
+
+
+
+
+
+
+
                 {
-
-
-                    type === 'Contact' && itemSelected === undefined ? (
-                        <View style={{ marginBottom: 10 }}>
-                            <Text style={styles.label}>Cliente</Text>
-                            <DropDownPicker
-                                style={{ borderColor: 'white' }}
-                                items={customerName}
-                                open={openPicker}
-                                setOpen={setOpenPicker}
-                                value={selectedPicker}
-                                setValue={setSelectedPicker}
-                                setItems={customerName}
-                            />
-                        </View>
-
-                    ) : (
+                    type === 'addUser' ? (
                         <Input
-                            label={type === 'addUser' ? 'Email' : 'Cliente'}
+                            label='Email'
                             labelStyle={styles.label}
                             onFocus={() => handleFocus('customer')}
                             onBlur={handleBlur}
                             inputStyle={focusCustomer ? styles.inputFocus : styles.input}
-                            value={type === 'addUser' ? email : customer}
-                            onChangeText={type === 'addUser' ? (text) => setEmail(text) : (text) => setCustomer(text)}
+                            value={email}
+                            onChangeText={(text) => setEmail(text)}
                             disabled={disabled}
                         />
+                    ) : (
+                        <View style={{ marginBottom: 10, zIndex: 1000 }}>
+                            <Text style={styles.label}>Cliente</Text>
+                            <DropDownPicker
+                                style={{ borderColor: 'white', }}
+                                placeholderStyle={{ fontSize: 18, color: 'grey' }}
+                                items={customerName}
+                                open={openPicker}
+                                textStyle={{ fontSize: 18, }}
+                                setOpen={setOpenPicker}
+                                value={client}
+                                setValue={setClient}
+                                setItems={customerName}
+                                placeholder={searchName.length > 0 ? searchName[0].Nome : 'Selecione um Cliente'}
+                                disabled={disabled}
+                            />
+                        </View>
                     )
                 }
-
 
                 <Input
                     label={type === 'addUser' ? 'Senha' : 'Telefone'}
@@ -213,38 +272,60 @@ export default function ModalAdd({
             </View>
 
 
-            <View style={styles.containerChek}>
-                <CheckBox
-                    title='Adm'
-                    checked={itemSelected ? itemSelected.Adm : checkAdm}
-                    onPress={() => {
 
-                        setCheckAdm(!checkAdm)
+            {
+                type === 'addUser' ? (
+                    <View style={styles.containerChek}>
+                        <CheckBox
+                            title='Adm'
+                            checked={itemSelected ? itemSelected.Adm : checkAdm}
+                            onPress={() => {
+
+                                setCheckAdm(!checkAdm)
 
 
-                    }}
-                    disabled={disabled}
-                />
-                <CheckBox
-                    title='Representante'
-                    checked={itemSelected ? itemSelected.Representante : checkRepres}
-                    onPress={() => {
-                        setCheckRepres(!checkRepres)
+                            }}
+                            disabled={disabled}
+                        />
+                        <CheckBox
+                            title='Representante'
+                            checked={itemSelected ? itemSelected.Representante : checkRepres}
+                            onPress={() => {
+                                setCheckRepres(!checkRepres)
 
-                    }}
-                    disabled={disabled}
-                />
-                <CheckBox
-                    title='Ativo'
-                    checked={itemSelected ? itemSelected.Ativo : checkStatus}
-                    onPress={() => {
-                        setCheckStatus(!checkStatus)
+                            }}
+                            disabled={disabled}
+                        />
+                        <CheckBox
+                            title='Ativo'
+                            checked={itemSelected ? itemSelected.Ativo : checkStatus}
+                            onPress={() => {
+                                setCheckStatus(!checkStatus)
 
-                    }}
-                    disabled={disabled}
-                />
+                            }}
+                            disabled={disabled}
+                        /></View>
+                ) : (
+                    <View style={styles.containerChek}>
 
-            </View>
+                        <CheckBox
+                            title='Vinculado'
+                            checked={itemSelected ? localVinculed : vinculed}  // Usar o estado local
+                            onPress={() => {
+                                if (itemSelected) {
+                                    setItemSelected({ ...itemSelected, Vinculado: !localVinculed });
+                                } else {
+                                    setVinculed(!vinculed);
+                                }
+                            }}
+                            disabled={disabled}
+                        />
+                    </View>
+                )
+            }
+
+
+
 
             <View style={styles.containerButton}>
                 {

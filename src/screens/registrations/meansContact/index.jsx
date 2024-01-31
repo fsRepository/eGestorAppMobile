@@ -256,14 +256,17 @@ export default function MeansContact() {
                 )
             }
 
+            {
+                loading === true ? '' : <FABComponent
 
-            <FABComponent
+                    onPress={() => {
+                        setOpenModal(true)
+                        setItemSelected([])
 
-                onPress={() => {
-                    setOpenModal(true)
-                    setItemSelected([])
+                    }} />
+            }
 
-                }} />
+
 
 
 
@@ -290,7 +293,8 @@ const styles = StyleSheet.create({
     container: {
         marginStart: 10,
         marginEnd: 10,
-        marginTop: 10
+        marginTop: 10,
+        flex: 1
     },
 
     content: {

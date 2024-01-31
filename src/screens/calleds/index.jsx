@@ -1,14 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native';
 import Header from '../../components/header';
 import DatePickerHeader from '../../components/headerDatePicker';
 import { Button, Overlay } from '@rneui/themed'
-import { useState } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import SearchBarComponent from '../../components/searchBarComponent';
 import { FlatList } from 'react-native';
 import AtendimentList from '../../components/atendimentList';
 import { useNavigation } from '@react-navigation/native';
-
+import { apiAtendimentos } from '../../services/api';
+import axios from 'axios';
+import { format } from 'date-fns';
+import Toast from 'react-native-toast-message';
+import { ContextAuth } from '../../context';
+import FabSpeed from '../../components/FabSpeedAction';
 
 
 // import { Container } from './styles';
@@ -17,104 +22,64 @@ import { useNavigation } from '@react-navigation/native';
 export default function Calleds() {
     const [selectedPicker, setSelectedPicker] = useState('')
     const [search, setSearch] = useState('')
-    const [atendimentoData, setAtendimentoData] = useState([
-        {
-            protocolNumber: '123456',
-            clientId: 'C001',
-            clientName: 'Lojão Bras',
-            requesterName: 'Maria Souza',
-            attendantName: 'Carlos Oliveira',
-            startTime: '2024-01-18T10:00:00',
-            status: 'Concluido',
-        },
-        {
-            protocolNumber: '789012',
-            clientId: 'C002',
-            clientName: 'Atacado Martins',
-            requesterName: 'José Silva',
-            attendantName: 'Fernanda Souza',
-            startTime: '2024-01-18T11:30:00',
-            status: 'Pendente',
-        },
-        {
-            protocolNumber: '345678',
-            clientId: 'C003',
-            clientName: 'Americanas',
-            requesterName: 'Juliana Lima',
-            attendantName: 'Mariana Oliveira',
-            startTime: '2024-01-18T14:15:00',
-            status: 'Em Andamento',
-        },
-        {
-            protocolNumber: '901234',
-            clientId: 'C004',
-            clientName: 'Atacadao',
-            requesterName: 'Rafaela Pereira',
-            attendantName: 'Rodrigo Mendes',
-            startTime: '2024-01-18T16:45:00',
-            status: 'Pendente',
-        },
-        {
-            protocolNumber: '567890',
-            clientId: 'C005',
-            clientName: 'Lucas Oliveira',
-            requesterName: 'Isabela Santos',
-            attendantName: 'Anderson Souza',
-            startTime: '2024-01-18T19:30:00',
-            status: 'Em Andamento',
-        },
-        {
-            protocolNumber: '234567',
-            clientId: 'C006',
-            clientName: 'Fernanda Lima',
-            requesterName: 'Roberto Silva',
-            attendantName: 'Camila Oliveira',
-            startTime: '2024-01-18T22:00:00',
-            status: 'Pendente',
-        },
-        {
-            protocolNumber: '890123',
-            clientId: 'C007',
-            clientName: 'Mariana Souza',
-            requesterName: 'Lucas Santos',
-            attendantName: 'Gabriel Lima',
-            startTime: '2024-01-19T09:00:00',
-            status: 'Em Andamento',
-        },
-        {
-            protocolNumber: '456789',
-            clientId: 'C008',
-            clientName: 'Juliano Silva',
-            requesterName: 'Tatiane Oliveira',
-            attendantName: 'Ana Lima',
-            startTime: '2024-01-19T12:30:00',
-            status: 'Pendente',
-        },
-        {
-            protocolNumber: '012345',
-            clientId: 'C009',
-            clientName: 'Roberta Oliveira',
-            requesterName: 'Gustavo Lima',
-            attendantName: 'Patricia Souza',
-            startTime: '2024-01-19T15:15:00',
-            status: 'Em Andamento',
-        },
-        {
-            protocolNumber: '678901',
-            clientId: 'C010',
-            clientName: 'Larissa Santos',
-            requesterName: 'Ricardo Silva',
-            attendantName: 'Daniel Oliveira',
-            startTime: '2024-01-19T18:45:00',
-            status: 'Pendente',
-        },
-    ]);
+    const [filter, setFilter] = useState('Todos')
+    const [atendiment, setAtendiment] = useState([])
+    const [dateStart, setDateStart] = useState(new Date())
+    const [dateEnd, setDateEnd] = useState(new Date())
+    const [loading, setLoading,] = useState(false)
+    const { situations, LoadSituations, user, LoadClients } = useContext(ContextAuth)
 
     //determina se o  modal esta aberto ou fechado
     const [open, setOpen] = useState(false);
 
     //const navigation para navegar pra outra screen
     const navigation = useNavigation()
+
+    //função para formatar a data no formato esperado pela api
+    function FormatData(value) {
+        const FormatDT = format(value, 'yyyy.MM.dd')
+        return FormatDT;
+
+    }
+
+
+    //função para carregar todos os atendimentos
+
+    async function LoadCalleds() {
+        setLoading(true)
+
+        const response = await axios.get(`${apiAtendimentos}?dataInicial=2024.01.01&dataFinal=2024.01.02`)
+        try {
+
+            console.log('dados', response.data)
+            setAtendiment(response.data)
+            setLoading(false)
+
+
+        }
+        catch {
+            (error) => {
+                console.log('Erro ao buscar atendimentos', error)
+                setLoading(false)
+                Toast.show({
+                    type: 'error',
+                    text1: 'erro ao buscar atendimentos',
+
+                })
+            }
+        }
+
+    }
+
+    useEffect(() => {
+        LoadCalleds()
+    }, [])
+
+    useEffect(() => {
+        LoadSituations()
+        LoadClients()
+    }, [atendiment])
+
     return (
         <View style={styles.container}>
 
@@ -129,7 +94,7 @@ export default function Calleds() {
             </View>
             <View style={{ marginTop: 10 }}>
                 <View style={{ zIndex: 5000 }}>
-                    <SearchBarComponent search={search} setSearch={setSearch} />
+                    <SearchBarComponent search={search} setSearch={setSearch} type='calleds' filter={filter} setFilter={setFilter} />
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 10, marginEnd: 10 }}>
@@ -149,14 +114,24 @@ export default function Calleds() {
 
             <View style={{ zIndex: -1 }}>
 
+                {
+                    loading === true ? (
+                        <ActivityIndicator style={{ marginTop: 100 }} size="large" color="#DB6015" />
+                    ) : <FlatList
+                        keyExtractor={(item, index) => item.UID}
+                        data={atendiment}
+                        renderItem={({ item }) =>
+                            <AtendimentList item={item} type='calleds' />
+                        } refreshControl={
+                            <RefreshControl
+                                refreshing={loading}
+                                onRefresh={LoadCalleds}
+                                colors={['#4285F4', '#34A853', '#FBBC05', '#EA4335']}
+                            />
+                        }
+                    />
+                }
 
-                <FlatList
-                    keyExtractor={(item, index) => item.protocolNumber}
-                    data={atendimentoData}
-                    renderItem={({ item }) =>
-                        <AtendimentList item={item} />
-                    }
-                />
 
 
             </View>

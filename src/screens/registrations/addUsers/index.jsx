@@ -24,7 +24,7 @@ export default function AddUsers() {
     const [filteredList, setFilteredList] = useState()
     const [emptyList, setEmptyList] = useState(false)
     const { user, users, LoadUsers, loading, setLoading } = useContext(ContextAuth)
-
+    const [searchActive, setSearchActive] = useState(false);
 
     useEffect(() => {
 
@@ -34,7 +34,10 @@ export default function AddUsers() {
     function Refresh() {
         LoadUsers()
     }
+    useEffect(() => {
+        setFilteredList(users)
 
+    }, [users])
     // função para dicionar um novo usuario no sistemas
     async function Add() {
         if (contact !== '' && email !== '' && password !== '') {
@@ -80,7 +83,7 @@ export default function AddUsers() {
 
             await axios.put(`${apiUsuarios}/${itemSelected.UID}`, {
                 UID: itemSelected.UID,
-                UIDContratante: user.UIDContratante,
+                UIDContratante: user.UidContratante,
                 Nome: contact.toUpperCase(),
                 Email: email,
                 Password: password,

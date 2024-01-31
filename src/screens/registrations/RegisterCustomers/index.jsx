@@ -129,7 +129,7 @@ const RegisterCustomers = () => {
 
         <View style={styles.container}>
             <View style={{ zIndex: 1000 }}>
-                <SearchBarComponent OnSearch={OnSearch} search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} />
+                <SearchBarComponent OnSearch={OnSearch} search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} type='clients' />
             </View>
 
             {
@@ -138,25 +138,24 @@ const RegisterCustomers = () => {
 
             {
                 loading === true ? <ActivityIndicator size='large' color='#DB6015' style={{ marginTop: 100 }} /> :
-                    (
-                        <FlatList
 
-                            vertical
-                            data={search !== '' ? filteredList : Customers}
-                            keyExtractor={(item) => item.UID}
-                            renderItem={({ item }) =>
-                                <RenderList type='Customers' item={item} />
-                            }
-                            refreshControl={
-                                <RefreshControl
-                                    refreshing={loading}
-                                    onRefresh={Refresh}
-                                    colors={['#4285F4', '#34A853', '#FBBC05', '#EA4335']}
-                                />
-                            }
+                    <FlatList
 
-                        />
-                    )
+                        vertical
+                        data={search !== '' ? filteredList : Customers}
+                        keyExtractor={(item) => item.UID}
+                        renderItem={({ item }) =>
+                            <RenderList type='Customers' item={item} />
+                        }
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={loading}
+                                onRefresh={LoadClients}
+                                colors={['#4285F4', '#34A853', '#FBBC05', '#EA4335']}
+                            />
+                        }
+                    />
+
             }
 
             {
