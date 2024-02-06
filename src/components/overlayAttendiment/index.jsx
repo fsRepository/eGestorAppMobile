@@ -180,6 +180,7 @@ export default function OverlayAtendiment({ setOpen, open,
                     onChangeText={(text) => setDesc(text)}
                     keyboardType='default'
                     disabled={disabled}
+                    multiline
                 />
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: -30 }}>

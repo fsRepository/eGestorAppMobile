@@ -68,6 +68,31 @@ export default function SearchBarComponent({ search, setSearch, filter, setFilte
             value: 'CNPJ/CPF'
         }
     ])
+    const [filtercalleds2, setFilterCalleds2] = useState([
+
+        {
+            value: 'Todos',
+            label: 'Todos'
+
+        },
+        {
+            value: 'Cliente',
+            label: 'Cliente'
+
+        },
+        {
+            value: 'Atendente',
+            label: 'Atendente'
+
+        },
+        ,
+        {
+            value: 'Protocolo',
+            label: 'Protocolo'
+
+        },
+
+    ])
     const [openPicker, SetOpenPicker] = useState(false
     )
 
@@ -106,7 +131,7 @@ export default function SearchBarComponent({ search, setSearch, filter, setFilte
                     open={openPicker}
                     setOpen={SetOpenPicker}
                     items={type === 'users' ?
-                        filterUser : type === 'clients' ? filterItems : type === 'calleds' || 'Contacts' ? filterUser : type === 'addAtendiment' ? filters : filtercalleds}
+                        filterUser : type === 'clients' ? filterItems : type === 'Contacts' ? filterUser : type === 'addAtendiment' ? filters : type === 'calleds' ? filtercalleds2 : filterUser}
                     setItems={filterItems}
                     setValue={setFilter}
                     value={filter}

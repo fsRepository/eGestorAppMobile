@@ -39,7 +39,7 @@ export default function RenderList({ item, type,
 
 
     async function selectedContact(item) {
-        console.log(item)
+
         if (type === 'Contact') {
             setItemSelected(item)
             setOpenModal(true)

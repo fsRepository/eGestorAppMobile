@@ -37,7 +37,7 @@ export default function AtendimentList({ item, type, customer, open, setOpen, it
     //função que recebe o item clicado e abre o modal
     function handleOpen() {
 
-        console.log(item)
+
         setItemSelected(item)
         setOpen(true)
     }
@@ -80,7 +80,7 @@ export default function AtendimentList({ item, type, customer, open, setOpen, it
                         <View style={styles.info}>
                             <Text style={styles.label1}>{item.Titulo}</Text>
                             <Text style={styles.label}>Solicitante:{item.Solicitante}</Text>
-                            <Text style={styles.label}>Atendente: {item.Atendente}</Text>
+                            <Text style={[styles.label, { width: 260 }]}>Atendente: {item.Atendente}</Text>
                             <Text style={styles.label}>{formatDate(item.Data_atend_ini)}</Text>
                             <Text style={styles.label}>{item.Hora_atendimento}</Text>
                             <Text>Protocolo:{item.Protocolo}</Text>

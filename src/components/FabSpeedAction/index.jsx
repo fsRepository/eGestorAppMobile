@@ -4,7 +4,7 @@ import { SpeedDial } from '@rneui/themed';
 import Trash from 'react-native-vector-icons/Feather'
 // import { Container } from './styles';
 export default function FabSpeed({ openTab, setOpenTab, edit, save, itemSelected, DeleteItem }) {
-    console.log(itemSelected)
+
     return (
 
         <SpeedDial
@@ -30,12 +30,7 @@ export default function FabSpeed({ openTab, setOpenTab, edit, save, itemSelected
                             onPress={edit}
                             color='#DB6015'
                         />
-                        <SpeedDial.Action
-                            icon={{ name: 'close', color: 'white' }}
-                            title='Excluir'
-                            onPress={DeleteItem}
-                            color='#DB6015'
-                        />
+
                     </View>
 
                 )

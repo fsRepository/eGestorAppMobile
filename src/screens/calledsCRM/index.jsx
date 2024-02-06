@@ -316,7 +316,7 @@ export default function CalledsCRM() {
 
     return (
         <View style={styles.container}>
-            <SearchBarComponent search={search} OnSearch={(value) => setSearch(value)} filter={filter} setFilter={setFilter} type='calleds' />
+            <SearchBarComponent search={search} OnSearch={(value) => setSearch(value)} filter={filter} setFilter={setFilter} type='crm' />
             <View style={styles.headerDate}>
                 <DatePickerHeader
                     setDateStart={setDateStart}

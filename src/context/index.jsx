@@ -9,7 +9,8 @@ import {
     apiMotivos,
     apiMeiosDeContato,
     apiSituacoes,
-    apiUsuarios
+    apiUsuarios,
+    apiTelasSistema
 } from '../services/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -25,7 +26,7 @@ export default function ContextProvider({ children }) {
     const [contactMethods, setMethods] = useState([])
     const [situations, setSituations] = useState([])
     const [users, setUsers] = useState([])
-
+    const [telasSistem, setTelaSistem] = useState([])
 
     function login(username, password) {
         setLoading(true)
@@ -118,7 +119,7 @@ export default function ContextProvider({ children }) {
                 try {
                     const data = JSON.stringify(response.data)
                     AsyncStorage.setItem('customers', data)
-                    console.log('dados enviados pro storage')
+
                 } catch {
                     console.log('erro ao enviar dados pro storage')
                 }
@@ -142,7 +143,7 @@ export default function ContextProvider({ children }) {
             .then((response) => {
                 setSistems(response.data)
                 setLoading(false)
-                console.log(response.data)
+
 
             })
             .catch((error) => {
@@ -162,7 +163,7 @@ export default function ContextProvider({ children }) {
             const response = await axios.get(apiMotivos)
 
             if (response.status === 200) {
-                console.log(response.data)
+
                 setMotives(response.data)
                 setLoading(false)
 
@@ -189,7 +190,7 @@ export default function ContextProvider({ children }) {
         setLoading(true)
         const response = await axios.get(apiMeiosDeContato)
             .then((response) => {
-                console.log(response.data)
+
                 setMethods(response.data);
                 setLoading(false)
             })
@@ -210,7 +211,7 @@ export default function ContextProvider({ children }) {
         await axios.get(apiSituacoes)
             .then((response) => {
                 setSituations(response.data)
-                console.log(response.data)
+
 
             })
             .catch((error) => {
@@ -227,7 +228,7 @@ export default function ContextProvider({ children }) {
         setLoading(true)
         const response = await axios.get(apiUsuarios)
             .then((response) => {
-                console.log(response.data)
+
                 setUsers(response.data)
                 setLoading(false)
             })
@@ -243,7 +244,21 @@ export default function ContextProvider({ children }) {
     //função para percorrer os ususarios que sao representantes
     const userRepres = users.filter(user => user.Representante === true);
 
+    async function LoadTelas() {
+        await axios.get(apiTelasSistema)
+            .then((res) => {
+                console.log('telas carregadas')
+                setTelaSistem(res.data)
 
+            })
+            .catch((error) => {
+                console.log(error)
+                Toast.show({
+                    type: 'error',
+                    text1: 'Erro ao carregar telas dos sistemas'
+                })
+            })
+    }
 
 
     return (
@@ -268,7 +283,8 @@ export default function ContextProvider({ children }) {
                 situations,
                 LoadUsers,
                 users,
-                userRepres
+                userRepres, LoadTelas,
+                telasSistem
             }}
         >
 

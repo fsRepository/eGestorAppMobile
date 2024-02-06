@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
-import Header from '../../components/header';
-import { Picker } from '@react-native-picker/picker';
-import { Card } from '@rneui/themed';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, StyleSheet, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 import RenderCards from '../../components/renderCards';
-
 import DatePickerHeader from '../../components/headerDatePicker';
 import { Button } from '@rneui/base';
 import RenderAtendiment from '../../components/renderAtendiment';
+import axios from 'axios';
+import { apiDash } from '../../services/api';
+import { format } from 'date-fns';
+import Toast from 'react-native-toast-message';
+import DashAtendent from '../../components/dashboards/dashAtendent';
 
 
 export default function Home() {
 
     const [selectedPicker, setSelectedPicker] = useState("Todos")
-
+    const [dateStart, setDateStart] = useState(new Date())
+    const [dateEnd, setDateEnd] = useState(new Date())
+    const [loading, setLoading] = useState(false)
+    const [dashData, setDashData] = useState([])
+    const [dashSituacao, setDashSituacao] = useState([])
+    const [dashAtendente, setDashAtendente] = useState([])
+    const [dashAtendimentAtendente, setAtendiment] = useState([])
     const [values, setValues] = useState({
         Pendente: 5,
         Concluido: 3,
@@ -39,58 +46,115 @@ export default function Home() {
     ])
 
     const data = Object.entries(values).map(([key, value]) => ({ id: key, value }));
-    /*
-    
-    */
+
+
+
+    //função pra formatar data para o formato esperado pela api
+    function FormatDate(value) {
+        const data = format(value, 'yyyy.MM.dd')
+        return data;
+    }
+    //sempre que a tela é aberta, os dados sao carregados da api
+    useEffect(() => {
+        LoadDash()
+    }, [])
+
+
+    async function LoadDash() {
+        const url = `${apiDash}?dataInicial=${FormatDate(dateStart)}&dataFinal=${FormatDate(dateEnd)}`
+        console.log(url)
+        setLoading(true)
+        try {
+            const response = await axios.get(`${apiDash}?dataInicial=${FormatDate(dateStart)}&dataFinal=${FormatDate(dateEnd)}`);
+            setDashData(response.data)
+
+            setLoading(false)
+        } catch (error) {
+            setLoading(false)
+            console.log('Erro ao buscar os dados para o dashboard', error);
+            Toast.show({
+                type: "error",
+                text1: 'Erro ao buscar dados para o dashboard',
+                text2: error.message
+            });
+        }
+    }
+
+
+    useEffect(() => {
+
+        const Situacao = dashData.DashAtendimentosPorSituacao
+        setDashSituacao(Situacao)
+        const atendent = dashData.DashAtendente
+        setDashAtendente(atendent)
+
+        const atendiment = dashData.DashAtendenteStacked
+        setAtendiment(atendiment)
+
+    }, [dashData])
+
+
+
     return (
 
 
         <View style={{ marginStart: 10, marginEnd: 10, }}>
 
             <View style={styles.header} >
-                <Header setSelectedPicker={setSelectedPicker} selectedPicker={selectedPicker} />
-                <DatePickerHeader />
+
+                <DatePickerHeader setDateEndd={setDateEnd} setDateStart={setDateStart} />
 
             </View>
 
-            <Button title='Filtrar'
+            <Button
+                onPress={LoadDash}
+                title='Filtrar'
                 containerStyle={{ width: 100, height: 50, marginTop: 5, }}
                 buttonStyle={{ backgroundColor: '#DB6015' }}
             />
             <Text style={styles.label}>Visão Geral - Atendimentos</Text>
 
+            {
+                loading === true ?
+                    (
+                        <View style={{ marginTop: 200 }}>
+                            <ActivityIndicator color='#DB6015' size='large' />
+                        </View>
 
-            <ScrollView>
+                    ) :
 
-
-                <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-
-                    data={data}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) =>
-                        <RenderCards item={item} />
-                    }
-                />
-
-                <Text style={styles.label}>Atendimentos por Atendente</Text>
-                <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-
-                    data={atendiments}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) =>
-                        <RenderAtendiment item={item} />}
+                    <ScrollView>
 
 
-                />
+                        <FlatList
+                            showsHorizontalScrollIndicator={false}
+                            horizontal
 
-                <Text style={styles.label}>Atendimentos por Situação</Text>
-                <Text style={styles.label}>Atendimentos por Motivo</Text>
-                <Text style={styles.label}>Atendimentos por Contato</Text>
-            </ScrollView>
+                            data={dashSituacao}
+                            keyExtractor={(item) => item.Situacao}
+                            renderItem={({ item }) =>
+                                <RenderCards item={item} loading={loading} />
+                            }
+                        />
+                        <FlatList
+                            showsHorizontalScrollIndicator={false}
+                            horizontal
+
+                            data={dashAtendente}
+                            keyExtractor={(item) => item.UIDAtendente}
+                            renderItem={({ item }) =>
+                                <RenderAtendiment item={item} />}
+
+
+                        />
+                        <Text style={styles.label}>Atendimentos por Atendente</Text>
+                        <DashAtendent data={dashAtendimentAtendente} />
+                        <Text style={styles.label}>Atendimentos por Situação</Text>
+                        <Text style={styles.label}>Atendimentos por Motivo</Text>
+                        <Text style={styles.label}>Atendimentos por Contato</Text>
+                    </ScrollView>
+            }
+
         </View>
     )
 

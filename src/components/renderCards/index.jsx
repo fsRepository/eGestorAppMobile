@@ -1,36 +1,42 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Feather from 'react-native-vector-icons/Feather'
 import Fontisto from 'react-native-vector-icons/Fontisto'
 // import { Container } from './styles';
 
-export default function RenderCards({ item }) {
-    const getBackgroundColor = (itemId) => {
-        switch (itemId) {
+export default function RenderCards({ item, loading }) {
 
-            case 'Pendente':
+
+    const getBackgroundColor = (item) => {
+        switch (item) {
+
+            case 'PENDENTE':
                 return '#d02d55';
-            case 'Concluido':
+            case 'CONCLUÍDO':
                 return '#36c389';
-            case 'Liberado':
+            case 'LIB. P/ ATUALIZAR':
                 return '#138ae4';
-            case 'Retorno':
+            case 'RETORNO':
                 return '#d02d55';
-            case 'Desenvolvimento':
+            case 'DESENVOLVIMENTO':
                 return '#138ae4';
-            case 'TotalOcorrencias':
+            case 'TOTALOCORRENCIAS':
                 return '#d02d55';
-            case 'TotalAtendimentos':
+            case 'CONCLUIDO POR INATIVIDADE':
                 return '#36c389';
             default:
                 return '#191919';
         }
     };
 
-    const backgroundColor = getBackgroundColor(item.id);
+    const backgroundColor = getBackgroundColor(item.Situacao);
     return (
         <View style={[styles.container,]}>
+
+
+
+
             <View style={[styles.leftContainer, { backgroundColor: backgroundColor }]}></View>
             <View style={styles.rightContainer}>
                 {
@@ -43,11 +49,13 @@ export default function RenderCards({ item }) {
                                             item.id === 'TotalAtendimentos' ? <AntDesign name='checkcircle' size={40} color={backgroundColor} /> : ''
                 }
 
-                <Text style={styles.value}>{item.value}</Text>
-                <Text style={styles.label}>{item.id}</Text>
+                <Text style={styles.value}>{item.Total}</Text>
+                <Text style={styles.label}>{item.Situacao}</Text>
 
 
             </View>
+
+
 
 
 

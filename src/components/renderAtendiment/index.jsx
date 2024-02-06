@@ -6,9 +6,9 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function RenderAtendiment({ item }) {
     return (
         <View style={styles.card}>
-            <Text style={styles.label}>{item.name}</Text>
+            <Text style={styles.label}>{item.Atendente}</Text>
             <View style={{ backgroundColor: 'white', width: 100, height: 1 }}></View>
-            <Text style={styles.num}>{item.atend}</Text>
+            <Text style={styles.num}>{item.Total}</Text>
             <Text style={styles.text}>Atendimentos</Text>
         </View>
     )
@@ -19,18 +19,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 10,
-        gap: 2,
         backgroundColor: '#db6015',
         margin: 10,
         elevation: 5,
-        width: 110,
-        height: 100,
+        width: 120,
+        height: 120,
         borderRadius: 10
     },
     label: {
-        fontSize: 17,
+        fontSize: 16,
         fontFamily: 'RobotoMedium',
         color: 'white',
+        width: 100,
+        textAlign: 'center'
 
 
     },
