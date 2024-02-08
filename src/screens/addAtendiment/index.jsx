@@ -315,7 +315,7 @@ export default function AddAtendimentt() {
 
         // se eu tiver um atendimnento e quiser encerrar, ele vem pra ca
         if (item) {
-            if (item.Situacao === 'CONCLUÍDO') {
+            if (item.Situacao === 'CONCLUÍDO' && item.Situacao === 'CONCLUIDO POR INATIVIDADE') {
                 console.log('O atendimento já foi encerrado')
             } else if (statusSelected === '6568b706-d486-4ad3-9817-1d5858135703') {
                 console.log('Voce esta prestes a encerrar o atendimento')
@@ -510,12 +510,27 @@ export default function AddAtendimentt() {
 
     }
 
+    const [uidTransfer, setUidTransfer] = useState('')
+    function SearchAtendenteTransfer() {
+        if (item) {
+            if (item.Transferido === null) {
+                setUidTransfer(selectedAtendentTransfer)
+            } else {
+
+                const search = users.filter((item) => item.Nome === selectedAtendentTransfer)
+                setUidTransfer(search[0]?.UID)
+
+            }
+        }
+
+    }
     useEffect(() => {
         searchAtendent()
         SearchContact()
         searchSistem()
         searchTela()
-    }, [item, selectedAtendent, selectedContac, selectedSistem])
+        SearchAtendenteTransfer()
+    }, [item, selectedAtendent, selectedContac, selectedSistem, selectedAtendentTransfer])
     async function Edit() {
 
         if (item.Situacao === 'CONCLUÍDO' || item.Situacao === 'CONCLUIDO POR INATIVIDADE') {
@@ -551,7 +566,7 @@ export default function AddAtendimentt() {
                     Situacao: statusSelected,
                     Telefone: phone,
                     Tipo_contato: uidContact,
-                    Transferido: uidAtendent,
+                    Transferido: uidTransfer,
                     Link: trello,
                     Sistema: uidSistem,
 
@@ -950,9 +965,9 @@ export default function AddAtendimentt() {
                             style={styles.picker}
                             items={atendants}
                             open={openDropContact}
-                            value={selectedContac}
+                            value={selectedAtendentTransfer}
                             setOpen={setOpenDropContact}
-                            setValue={setSelectedContact}
+                            setValue={setSelectedAtendentTranfer}
                             disabled={disabled}
 
                             placeholder={item ? selectedAtendentTransfer : 'Todos'}

@@ -226,22 +226,14 @@ export default function OverlayAtendiment({ setOpen, open,
                             />
                     }
 
-                    {itemSelected ?
 
+                    <Button
+                        title='Cancelar'
+                        onPress={() => setOpen(false)}
+                        containerStyle={{ width: 100, borderRadius: 6 }}
+                        buttonStyle={{ backgroundColor: '#d02d55' }}
+                    />
 
-                        <Button
-                            title='Exlcuir'
-                            onPress={() => DeleteItem(itemSelected)}
-                            containerStyle={{ width: 100, borderRadius: 6 }}
-                            buttonStyle={{ backgroundColor: '#d02d55' }}
-                        /> :
-                        <Button
-                            title='Cancelar'
-                            onPress={() => setOpen(false)}
-                            containerStyle={{ width: 100, borderRadius: 6 }}
-                            buttonStyle={{ backgroundColor: '#d02d55' }}
-                        />
-                    }
 
                 </View>
 

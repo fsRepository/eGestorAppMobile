@@ -141,15 +141,10 @@ export default function OverlayRender({ openModal,
                     />
             }
 
-            {
-                itemSelected.length === 0 ? '' : (
-                    <Button
-                        onPress={Delete}
-                        title='Excluir'
-                        buttonStyle={{ backgroundColor: '#d02d55', marginTop: 10, borderRadius: 6 }}
-                    />
-                )
-            }
+
+
+
+
 
         </View>
     )

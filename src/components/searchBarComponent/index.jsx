@@ -85,12 +85,12 @@ export default function SearchBarComponent({ search, setSearch, filter, setFilte
             label: 'Atendente'
 
         },
-        ,
+
         {
             value: 'Protocolo',
             label: 'Protocolo'
 
-        },
+        }
 
     ])
     const [openPicker, SetOpenPicker] = useState(false

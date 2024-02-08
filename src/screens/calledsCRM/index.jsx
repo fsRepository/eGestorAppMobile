@@ -201,43 +201,51 @@ export default function CalledsCRM() {
         if (dateStart !== itemSelected.Periodo_Inicial || dateEnd !== itemSelected.Periodo_Final || desc !== itemSelected.Descricao
             || status !== itemSelected.Situacao
         ) {
-
-            await axios.put(`${apiCRMAtendimentos}/${itemSelected.UID}`, {
-                UIDContratante: user.UidContratante,
-                Conceito: conceito,
-                Descricao: desc,
-                Periodo_Inicial: dateStart,
-                Periodo_Final: dateEnd,
-                UIDCliente: selectedCustomer,
-                Data_Realizacao: new Date(),
-                Situacao: status.toUpperCase(),
-                Clientes: null,
-                UID: itemSelected.UID
-
-            }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then((res) => {
-                console.log('atendimento editado')
-                setOpen(false)
+            if (itemSelected.Situacao === 'CONCLUIDO') {
                 Toast.show({
-                    type: 'success',
-                    text1: 'Atendimento CRM modificado'
+                    type: 'info',
+                    text1: 'O atendimento já foi concluido'
                 })
-                LoadCalleds()
-            })
-                .catch((error) => {
-                    console.log(error)
+            } else {
+                await axios.put(`${apiCRMAtendimentos}/${itemSelected.UID}`, {
+                    UIDContratante: user.UidContratante,
+                    Conceito: conceito,
+                    Descricao: desc,
+                    Periodo_Inicial: dateStart,
+                    Periodo_Final: dateEnd,
+                    UIDCliente: selectedCustomer,
+                    Data_Realizacao: new Date(),
+                    Situacao: status.toUpperCase(),
+                    Clientes: null,
+                    UID: itemSelected.UID
+
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then((res) => {
+                    console.log('atendimento editado')
+                    setOpen(false)
                     Toast.show({
-                        type: 'error',
-                        text1: 'erro ao modificar atendimento',
-                        text2: error
+                        type: 'success',
+                        text1: 'Atendimento CRM modificado'
                     })
+                    LoadCalleds()
                 })
+                    .catch((error) => {
+                        console.log(error)
+                        Toast.show({
+                            type: 'error',
+                            text1: 'erro ao modificar atendimento',
+                            text2: error
+                        })
+                    })
 
 
-        } else {
+            }
+        }
+
+        else {
             Toast.show({
                 type: 'info',
                 text1: 'É preciso fazer alguma alteração pra modificar o atendimento'
@@ -316,7 +324,10 @@ export default function CalledsCRM() {
 
     return (
         <View style={styles.container}>
-            <SearchBarComponent search={search} OnSearch={(value) => setSearch(value)} filter={filter} setFilter={setFilter} type='crm' />
+            <View style={{ zIndex: 500 }}>
+                <SearchBarComponent search={search} OnSearch={(value) => setSearch(value)} filter={filter} setFilter={setFilter} type='crm' />
+            </View>
+
             <View style={styles.headerDate}>
                 <DatePickerHeader
                     setDateStart={setDateStart}

@@ -23,12 +23,12 @@ import OverlayAtendiment from '../../components/overlayAttendiment';
 export default function Calleds() {
     const [selectedPicker, setSelectedPicker] = useState('')
     const [search, setSearch] = useState('')
-    const [filter, setFilter] = useState('Nome')
+    const [filter, setFilter] = useState('Todos')
     const [atendiment, setAtendiment] = useState([])
     const [dateStart, setDateStart] = useState(new Date())
     const [dateEnd, setDateEnd] = useState(new Date())
-    const [loading, setLoading,] = useState(false)
-    const { situations, LoadSituations, user, LoadClients, Customers } = useContext(ContextAuth)
+
+    const { situations, LoadSituations, user, LoadClients, Customers, loading, setLoading } = useContext(ContextAuth)
 
     //determina se o  modal esta aberto ou fechado
     const [open, setOpen] = useState(false);
@@ -38,7 +38,7 @@ export default function Calleds() {
     const [selectedClient, setSelectedClient] = useState(null)
     const [filteredList, setFilteredList] = useState([])
     const [emptyList, setEmptyList] = useState(false)
-
+    const [loading1, setLoading1] = useState(false)
 
 
     //consts responsaveis para gerenciar a pesquisa de atendimentos principal 
@@ -59,19 +59,24 @@ export default function Calleds() {
     //função para carregar todos os atendimentos
 
     async function LoadCalleds() {
-        setLoading(true)
+        setLoading1(true)
 
         const response = await axios.get(`${apiAtendimentos}?dataInicial=${FormatData(dateStart)}&dataFinal=${FormatData(dateEnd)}`)
         try {
             setAtendiment(response.data)
-            setLoading(false)
+            setLoading1(false)
+            if (atendiment.length === 0) {
+
+            } else {
+
+            }
 
 
         }
         catch {
             (error) => {
                 console.log('Erro ao buscar atendimentos', error)
-                setLoading(false)
+                setLoading1(false)
                 Toast.show({
                     type: 'error',
                     text1: 'erro ao buscar atendimentos',
@@ -172,6 +177,13 @@ export default function Calleds() {
         }
     }
 
+    //quando search estiver vazio ele carega a lista original
+    useEffect(() => {
+        if (search === '') {
+            setEmptyList(false)
+            setFilteredAtendiment(atendiment)
+        }
+    }, [search])
 
     useEffect(() => {
         FindByName()
@@ -202,36 +214,36 @@ export default function Calleds() {
     }, [search, filter])
 
     function findName() {
-        setLoading(true)
+        setLoading1(true)
         if (search !== '') {
             const searchName = atendiment.filter((item) => item.Titulo.includes(search.toUpperCase()))
 
             if (searchName.length > 0) {
-                setTimeout(() => setLoading(false), 300)
+                setTimeout(() => setLoading1(false), 300)
                 setFilteredAtendiment(searchName)
                 setEmptyList(false)
 
             } else {
-                setTimeout(() => setLoading(false), 300)
+                setTimeout(() => setLoading1(false), 300)
                 setEmptyList(true)
                 setFilteredAtendiment([])
             }
 
 
         } else {
-            setTimeout(() => setLoading(false), 300)
+            setTimeout(() => setLoading1(false), 300)
             setFilteredAtendiment(atendiment)
             setEmptyList(false)
         }
     }
 
     function findByAtendent() {
-        setLoading(true)
+        setLoading1(true)
         if (search !== '') {
             const searchName = atendiment.filter((item) => item.Atendente.includes(search.toUpperCase()))
 
             if (searchName.length > 0) {
-                setTimeout(() => setLoading(false), 300)
+                setTimeout(() => setLoading1(false), 300)
                 setFilteredAtendiment(searchName)
                 setEmptyList(false)
 
@@ -243,30 +255,30 @@ export default function Calleds() {
 
 
         } else {
-            setTimeout(() => setLoading(false), 300)
+            setTimeout(() => setLoading1(false), 300)
             setFilteredAtendiment(atendiment)
             setEmptyList(false)
         }
     }
     function findByProtocolo() {
-        setLoading(true)
+        setLoading1(true)
         if (search !== '') {
             const searchName = atendiment.filter((item) => item.Protocolo === parseInt(search))
 
             if (searchName.length > 0) {
-                setTimeout(() => setLoading(false), 300)
+                setTimeout(() => setLoading1(false), 300)
                 setFilteredAtendiment(searchName)
                 setEmptyList(false)
 
             } else {
-                setTimeout(() => setLoading(false), 300)
+                setTimeout(() => setLoading1(false), 300)
                 setEmptyList(true)
                 setFilteredAtendiment([])
             }
 
 
         } else {
-            setTimeout(() => setLoading(false), 300)
+            setTimeout(() => setLoading1(false), 300)
             setFilteredAtendiment(atendiment)
             setEmptyList(false)
         }
@@ -276,7 +288,7 @@ export default function Calleds() {
     //quando o usuario escolher um espaço de datas , essa função e ativada
     //faz uma nova busca na api, com as datas novas
     function searchFilterDate() {
-
+        setEmptyList(false)
         LoadCalleds()
 
     }
@@ -293,10 +305,13 @@ export default function Calleds() {
 
             </View>
             <View style={{ marginTop: 10 }}>
-                <View style={{ zIndex: 10000 }}>
-                    <SearchBarComponent search={search} OnSearch={setSearch} type='calleds' filter={filter} setFilter={setFilter} />
 
+                <View style={{ zIndex: 500 }}>
+
+
+                    <SearchBarComponent search={search} OnSearch={setSearch} type='calleds' filter={filter} setFilter={setFilter} />
                 </View>
+
                 <DatePickerHeader setDateStart={setDateStart} setDateEndd={setDateEnd} />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 10, marginEnd: 10 }}>
                     <Button title='Filtrar'
@@ -317,7 +332,7 @@ export default function Calleds() {
             <View style={{ flex: 1 }}>
 
                 {
-                    loading === true ? (
+                    loading1 === true ? (
                         <ActivityIndicator style={{ marginTop: 100 }} size="large" color="#DB6015" />
                     ) : <FlatList
                         keyExtractor={(item, index) => item.UID}
@@ -333,11 +348,8 @@ export default function Calleds() {
                         }
                     />
                 }
-                {
-                    emptyList === true ? (
-                        <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 200 }}>Nenhum atendimento encontrado.</Text>
-                    ) : ''
-                }
+                {emptyList && <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 200 }}>Nenhum atendimento encontrado.</Text>}
+
 
                 {/**MODAL QUE SERA ABERTO ANTES DE INCLUIR O ATENDIMENTO. PARA SELECIONAR O CLIENTE QUE SERA ATENDIDO */}
 
@@ -354,7 +366,10 @@ export default function Calleds() {
                     <SearchBarComponent search={searchClient} OnSearch={setSearchCliente} />
                     {
                         loading === true ? (
-                            <ActivityIndicator size='large' />
+                            <View style={{ marginTop: 100 }}>
+                                <ActivityIndicator size='large' color='#DB6015' />
+                            </View>
+
                         ) : filteredList.length > 0 ? (
                             <FlatList
                                 data={filteredList}

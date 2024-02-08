@@ -347,16 +347,7 @@ export default function ModalAdd({
                             buttonStyle={{ backgroundColor: '#36c389' }}
                         />
                 }
-                {
-                    itemSelected ?
-                        <Button
-                            onPress={Delete}
-                            title='Excluir'
-                            containerStyle={{ width: 100, borderRadius: 6 }}
-                            buttonStyle={{ backgroundColor: '#d02d55' }}
-                        />
-                        : ''
-                }
+
 
 
             </View>
