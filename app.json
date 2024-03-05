@@ -4,7 +4,7 @@
     "slug": "eGestorMobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/gestor.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -40,7 +40,11 @@
           "READ_EXTERNAL_STORAGE",
           "WRITE_EXTERNERAL_STORAGE"
         ]
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.brendorocha.eGestorMobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -60,6 +64,11 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1bc135cc-1d5f-4c7a-b406-adeb5a0fa45b"
+      }
+    }
   }
 }

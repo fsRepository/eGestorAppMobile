@@ -39,7 +39,7 @@ export default function ModalAdd({
     const [focusCustomer, setFocusCustomer] = useState(false)
     const [focusNumber, setFocusNumber] = useState(false)
 
-
+    console.log(itemSelected)
 
     const [customer, setCustomer] = useState('')
     const [disabled, setDisabled] = useState(false)
@@ -121,6 +121,7 @@ export default function ModalAdd({
             } else if (type === 'Contact') {
                 setContact(itemSelected.Contato)
                 setNumber(itemSelected.Numero)
+                setClient(itemSelected.UIDCliente)
 
             }
         }

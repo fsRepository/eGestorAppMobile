@@ -18,7 +18,7 @@ export default function Telephone() {
     //pegando função pra carregar dados do contexto
     const { LoadClients, Customers, loading, setLoading, user } = useContext(ContextAuth);
     const [openModal, setOpenModal] = useState(false);
-    console.log(openModal)
+
 
     const [search, setSearch] = useState('')
     const [filter, setFilter] = useState('Nome')

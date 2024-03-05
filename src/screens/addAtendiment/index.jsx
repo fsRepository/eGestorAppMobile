@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator, Dimensions } from 'react-native';
 import { Input, Button, Tab, TabView, CheckBox } from '@rneui/themed';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { listaDeContatos, } from '../../services/baseDadosTeste';
@@ -79,6 +79,10 @@ export default function AddAtendimentt() {
     const [index, setIndex] = useState(0)
 
 
+    //correção da tabview que da erro no iphone
+    const [indicatorX, setIndicatorX] = useState(0);
+    const windowWidth = Dimensions.get('window').width;
+    const tabWidth = windowWidth / 2; // Specify your tabs amount
 
 
     //carrega os motivos
@@ -100,6 +104,7 @@ export default function AddAtendimentt() {
     //se caso tiver um item selecionado, ele seta com as informações
     useEffect(() => {
         setLoading(true)
+
         if (item) {
             setProtocol(item.Protocolo)
             setSolicit(item.Solicitante)
@@ -123,6 +128,7 @@ export default function AddAtendimentt() {
             setDateEnd(item.Data_conclusao)
             setHourEnd(item.Hora_conclusao)
             setFimTime(item.Tempo_conclusao)
+            setSelectedView(item.Ocorrencias[0]?.Tela)
 
             LoadCGIClient()
 
@@ -317,7 +323,8 @@ export default function AddAtendimentt() {
         if (item) {
             if (item.Situacao === 'CONCLUÍDO' && item.Situacao === 'CONCLUIDO POR INATIVIDADE') {
                 console.log('O atendimento já foi encerrado')
-            } else if (statusSelected === '6568b706-d486-4ad3-9817-1d5858135703') {
+
+            } else if (item.Situacao === 'PENDENTE' && statusSelected === '6568b706-d486-4ad3-9817-1d5858135703') {
                 console.log('Voce esta prestes a encerrar o atendimento')
                 setDateEnd(new Date())
                 setHourEnd(new Date())
@@ -566,7 +573,7 @@ export default function AddAtendimentt() {
                     Situacao: statusSelected,
                     Telefone: phone,
                     Tipo_contato: uidContact,
-                    Transferido: uidTransfer,
+                    Transferido: selectedAtendentTransfer === null ? '00000000-0000-0000-0000-000000000000' : uidTransfer,
                     Link: trello,
                     Sistema: uidSistem,
 
@@ -659,10 +666,14 @@ export default function AddAtendimentt() {
 
             <Tab
                 value={index}
-                onChange={(e) => setIndex(e)}
+                onChange={e => {
+                    setIndex(e); // Whatever you do here
+                    setIndicatorX(e * tabWidth); // Setting the right translateX value
+                }}
                 indicatorStyle={{
                     backgroundColor: 'white',
-                    height: 3
+                    height: 3,// Your custom styles if you have ones
+                    transform: [{ translateX: indicatorX }], // Overriding the buggy string from the source
                 }}
                 containerStyle={{ backgroundColor: '#DB6015' }}
                 variant='primary'
@@ -922,7 +933,7 @@ export default function AddAtendimentt() {
                                         setOpen={setOpenDropAtendant}
                                         setValue={setSelectedView}
                                         disabled={disabled}
-                                        placeholder={item ? selectedSistem : 'Selecionar Sistema'}
+                                        placeholder={item ? selectedView : 'Selecionar Sistema'}
 
                                     />
                                 </View>

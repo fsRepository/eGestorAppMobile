@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect, useContext } from 'react';
 import { View, Platform, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Image, TextInput, Modal, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
-import { Button } from '@rneui/themed'
+import { Button, Switch } from '@rneui/themed'
 import Icon from 'react-native-vector-icons/Fontisto'
 import Lock from 'react-native-vector-icons/AntDesign'
 // import { Container } from './styles';
@@ -9,13 +9,15 @@ import ModalRender from '../../components/modal';
 import BotomSheet from '@gorhom/bottom-sheet'
 import Toast from 'react-native-toast-message'
 import { ContextAuth } from '../../context/index'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Login = () => {
-    const { login, loading, setLoading } = useContext(ContextAuth);
-    const [username, setUserName] = useState('juliana.batista')
-    const [password, setPassword] = useState('ts261010')
+    const { login, loading, setLoading, user } = useContext(ContextAuth);
+    const [username, setUserName] = useState('')
+    const [password, setPassword] = useState('')
     const [focusedEmail, setFocusedEmail] = useState(false)
     const [focusedPassword, setFocusedPasswsord] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
+    const [remenber, setRemenber] = useState(false)
 
     const bottomRef = useRef(null)
     const snapPoints = useMemo(() => ['1', '30%', '60%'], [])
@@ -40,7 +42,7 @@ const Login = () => {
 
     function handleLogin() {
         if (username !== '' && password !== '') {
-            login(username, password)
+            login(username, password, remenber)
 
         }
         else {
@@ -58,6 +60,28 @@ const Login = () => {
     useEffect(() => {
 
         setLoading(false)
+
+    }, [])
+
+    // se o usuarioativar o remenber, os dados deles sao recuperados do storage 
+    useEffect(() => {
+        async function LoadRemenber() {
+
+
+            const data = await AsyncStorage.getItem('user')
+            const parse = JSON.parse(data)
+            console.log('dados do usuario', parse)
+            if (parse.Remenber === false) {
+                return;
+            } else {
+                setUserName(parse.email)
+                setPassword(parse.password)
+                setRemenber(parse.Remenber)
+            }
+
+
+        }
+        LoadRemenber()
 
     }, [])
     return (
@@ -113,6 +137,17 @@ const Login = () => {
                             borderRadius: 6
                         }}
                     />
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 10, gap: 5 }}>
+                        <Text style={{ fontSize: 15, }}>Lembrar meu usuário</Text>
+                        <Switch
+                            value={remenber}
+                            onValueChange={(value) => setRemenber(value)}
+                            color='#DB6015'
+                        />
+                    </View>
+
+                    {/**
                     <TouchableOpacity onPress={openBottomSheet}>
                         <Text style={{ fontSize: 16, marginTop: 10 }}>Esqueceu sua Senha?</Text>
                     </TouchableOpacity>
@@ -134,7 +169,8 @@ const Login = () => {
                     </View>
 
                 </BotomSheet>
-
+ */}
+                </View>
 
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>

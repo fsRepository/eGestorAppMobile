@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Dimensions } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import Home from '../screens/home';
 import RouterTab from './routeTab';
@@ -13,22 +13,35 @@ import MeansContact from '../screens/registrations/meansContact';
 import Motives from '../screens/motive';
 import Sistems from '../screens/systems';
 import Routes from '.';
+
 // import { Container } from './styles';
 
 export default function RouteDrawer({ Navigation }) {
-
+    const height = Dimensions.get('window').height;
+    const width = Dimensions.get('window').width
+    console.log(width, height)
+    const drawerWidth = width * 0.8;
+    console.log('80% da largura =', drawerWidth)
     const Drawer = createDrawerNavigator()
     return (
 
 
         <Drawer.Navigator
+
             drawerContent={props => <CustomDrawer{...props} />}
             screenOptions={{
 
                 headerTintColor: '#db6015',
                 drawerActiveBackgroundColor: '#e6e6e6',
-                drawerActiveTintColor: '#db6015'
+                drawerActiveTintColor: '#db6015',
+                drawerPosition: 'left',
+
+                drawerStyle: { width: drawerWidth }
+
             }}
+
+
+
         >
 
 
@@ -81,6 +94,6 @@ export default function RouteDrawer({ Navigation }) {
 
 
 
-        </Drawer.Navigator>
+        </Drawer.Navigator >
     )
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { Input, Tab, TabView, FAB, Button, CheckBox } from '@rneui/themed'
 import UserIcon from 'react-native-vector-icons/AntDesign'
 import Local from 'react-native-vector-icons/Entypo'
@@ -63,21 +63,40 @@ const DataCustomers = () => {
     const [chekmensal, setChekMensal] = useState(false)
     const [chekmensalN, setChekMensalNN] = useState(false)
     const [errorMessage, setErrorMessage] = useState(false)
-    function PadronizeCgi() {
+    const errorMessageText = 'O CGI precisa ter apenas 6 números.'
 
-        if (email < 6) {
-            console.log('o CGI precisa ter 6 números ')
-            setErrorMessage(true)
-        } else if (email > 6) {
-            console.log('o CGI precisa ter 6 números ')
-            setErrorMessage(true)
+    const [chekProfileF, setChekProfileF] = useState(false)
+    const [chekProfileP, setChekProfileP] = useState(false)
 
-        } else if (email === 6) {
-
-            setErrorMessage(false)
+    function PadronizeCgi(cgi) {
+        if (cgi !== '') {
+            if (cgi.length < 6) {
+                // Se o número de cgi for menor que 6, adicione zeros à esquerda para completar 6 dígitos
+                const cgiPadded = cgi.padStart(6, '0');
+                console.log('O CGI precisa ter 6 números. Será padronizado para:', cgiPadded);
+                return cgiPadded;
+            } else if (cgi.length > 6) {
+                console.log('O CGI precisa ter apenas 6 números.');
+                return null; // Retorna null para indicar um erro
+            } else {
+                console.log('O CGI tem 6 números.');
+                return cgi;
+            }
         }
 
     }
+    useEffect(() => {
+        const cgiPadronizado = PadronizeCgi(cgi)
+        if (cgiPadronizado) {
+            console.log(cgiPadronizado)
+            setCgi(cgiPadronizado)
+            setErrorMessage(false)
+        } else {
+            setErrorMessage(true)
+
+        }
+    }, [cgi])
+
 
     useEffect(() => {
         LoadUsers()
@@ -131,16 +150,9 @@ const DataCustomers = () => {
     }
 
     // se o usuario digitar pessoa fisica, ele so deixa o f, se nao deixa o j
-    function handleTypeProfile(text) {
-        if (text === 'fisica' || 'FISICA') {
-            setTypeProfile('f')
 
-        } else {
-            setTypeProfile('j')
 
-        }
 
-    }
 
     useEffect(() => {
         console.log('item:', itemSelected)
@@ -167,7 +179,7 @@ const DataCustomers = () => {
             setObs(itemSelected.OBS)
             setUserNfce(itemSelected.UsuarioNFCe)
             setPasswordNfce(itemSelected.SenhaNFCe)
-
+            setMensal(itemSelected.SemMensalidade)
 
             console.log(itemSelected.id)
             if (itemSelected.Ativo === true) {
@@ -175,6 +187,11 @@ const DataCustomers = () => {
 
             } else {
                 setCheckedIna(true)
+            }
+            if (itemSelected.TipoPessoa = 'J') {
+                setChekProfileP(true)
+            } else {
+                setChekProfileF(true)
             }
 
         } else {
@@ -192,7 +209,7 @@ const DataCustomers = () => {
         setDisabled(false)
         setOpenTab(false)
         if (disabled === false) {
-            if (Razao !== itemSelected.Nome || status !== itemSelected.Ativo) {
+            if (Razao !== itemSelected.Nome || status !== itemSelected.Ativo || itemSelected.Nivel !== nivel || itemSelected.SemMensalidade !== mensal) {
 
 
                 await axios.put(`${apiClientes}/${itemSelected.UID}`, {
@@ -333,7 +350,7 @@ const DataCustomers = () => {
                         Toast.show({
                             type: 'error',
                             text1: 'Erro ao adicionar cliente',
-                            text2: error.response.data
+                            text2: error.response.message
                         })
                     })
             } else {
@@ -439,6 +456,10 @@ const DataCustomers = () => {
             })
 
     }
+    //correção da tabview que da erro no iphone
+    const [indicatorX, setIndicatorX] = useState(0);
+    const windowWidth = Dimensions.get('window').width;
+    const tabWidth = windowWidth / 3; // Specify your tabs amount
 
     return (
         <KeyboardAvoidingView behavior='height' style={{ flex: 1 }}>
@@ -446,10 +467,14 @@ const DataCustomers = () => {
             <SafeAreaView style={styles.container}>
                 <Tab
                     value={index}
-                    onChange={(e) => setIndex(e)}
+                    onChange={e => {
+                        setIndex(e); // Whatever you do here
+                        setIndicatorX(e * tabWidth); // Setting the right translateX value
+                    }}
                     indicatorStyle={{
                         backgroundColor: 'white',
-                        height: 3
+                        height: 3,
+                        transform: [{ translateX: indicatorX }],
                     }}
                     containerStyle={{ backgroundColor: '#DB6015' }}
 
@@ -498,7 +523,7 @@ const DataCustomers = () => {
                                                 onChangeText={(text) => setCgi(text)}
                                                 inputStyle={styles.input}
                                                 disabled={disabled}
-
+                                                errorMessage={errorMessage === true ? errorMessageText : ''}
 
                                             />
                                             <Text style={{ fontSize: 16, color: 'grey', fontFamily: 'RobotoMedium', marginStart: 10 }}>Situação</Text>
@@ -509,6 +534,7 @@ const DataCustomers = () => {
                                                 onPress={() => {
                                                     setCheckedAtv(true)
                                                     setCheckedIna(false)
+                                                    setStatus(true)
                                                 }}
                                                 disabled={disabled}
                                             />
@@ -518,6 +544,7 @@ const DataCustomers = () => {
                                                 onPress={() => {
                                                     setCheckedAtv(false)
                                                     setCheckedIna(true)
+                                                    setStatus(false)
                                                 }}
                                                 disabled={disabled}
                                             />
@@ -544,16 +571,7 @@ const DataCustomers = () => {
 
                                             />
                                         </View>
-                                        <Input
-                                            label='Tipo de Pessoa'
-                                            placeholder='Fisica ou juridica'
-                                            labelStyle={styles.label}
-                                            inputStyle={styles.input}
-                                            value={typeProfile}
-                                            onChangeText={(text) => handleTypeProfile(text)}
-                                            disabled={disabled}
 
-                                        />
                                         <Input
                                             label='Data de Cadastro'
                                             labelStyle={styles.label}
@@ -564,6 +582,28 @@ const DataCustomers = () => {
                                             onChangeText={(text) => setDateRegister(text)}
                                             disabled={true}
 
+                                        />
+                                        <Text style={{ fontSize: 16, color: 'grey', fontFamily: 'RobotoMedium', marginStart: 10 }}>Tipo de Pessoa</Text>
+                                        <CheckBox
+
+                                            title='FISICA'
+                                            checked={chekProfileF}
+                                            onPress={() => {
+                                                setChekProfileF(true)
+                                                setChekProfileP(false)
+                                                setTypeProfile('F')
+                                            }}
+                                            disabled={disabled}
+                                        />
+                                        <CheckBox
+                                            title='JURIDICA'
+                                            checked={chekProfileP}
+                                            onPress={() => {
+                                                setChekProfileP(false)
+                                                setChekProfileF(true)
+                                                setTypeProfile('J')
+                                            }}
+                                            disabled={disabled}
                                         />
 
                                         <Input
@@ -731,6 +771,7 @@ const DataCustomers = () => {
                                             onPress={() => {
                                                 setCheckedAtv(true)
                                                 setCheckedIna(false)
+                                                setMensal(true)
                                             }}
                                             disabled={disabled}
                                         />
@@ -740,12 +781,13 @@ const DataCustomers = () => {
                                             onPress={() => {
                                                 setCheckedAtv(false)
                                                 setCheckedIna(true)
+                                                setMensal(false)
                                             }}
                                             disabled={disabled}
                                         />
                                         <Input
                                             label='Nivel'
-                                            value={nivel}
+                                            value={nivel.toString()}
                                             onChangeText={(text) => setNivel(text)}
                                             keyboardType='numeric'
                                             disabled={disabled}

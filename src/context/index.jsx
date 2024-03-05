@@ -27,8 +27,9 @@ export default function ContextProvider({ children }) {
     const [situations, setSituations] = useState([])
     const [users, setUsers] = useState([])
     const [telasSistem, setTelaSistem] = useState([])
+    const [atendiment, setAtendiment] = useState([])
 
-    function login(username, password) {
+    function login(username, password, remenber) {
         setLoading(true)
         try {
             let details = {
@@ -57,7 +58,12 @@ export default function ContextProvider({ children }) {
                     response.json()
                         .then((responseData) => {
                             if (responseData.error == 'invalid_grant') {
-                                console.log('erro')
+                                console.log('usuário ou senha incorreta')
+                                Toast.show({
+                                    type: 'error',
+                                    text1: 'Usuário ou senha incorretos!',
+                                    text2: 'Verifique os dados e tente novamente.'
+                                })
                                 setLoading(false)
                             } else {
 
@@ -70,6 +76,8 @@ export default function ContextProvider({ children }) {
                                     Adm: responseData.Adm,
                                     uid: responseData.Uid,
                                     UidContratante: responseData.UidContratante,
+                                    Remenber: remenber,
+                                    password: password
 
 
                                 }
@@ -79,6 +87,13 @@ export default function ContextProvider({ children }) {
                                     type: "success",
                                     text1: 'Seja bem vindo'
                                 })
+                                if (user) {
+
+                                    const response = AsyncStorage.setItem('user', JSON.stringify(user))
+                                        .then(() => { console.log('dados salvos no storage') })
+                                        .catch((error) => console.log('erro ao salvar dados no storage'))
+                                }
+
                                 navigation.navigate('home');
                                 console.log('user', user)
                             }
@@ -284,7 +299,9 @@ export default function ContextProvider({ children }) {
                 LoadUsers,
                 users,
                 userRepres, LoadTelas,
-                telasSistem
+                telasSistem,
+                atendiment,
+                setAtendiment
             }}
         >
 

@@ -12,7 +12,6 @@ export default function InitialPage() {
         "Gerencie Atendimentos.",
         "Otimize o seu tempo",
         "Aumente suas vendas, fidelize clientes, alcance o sucesso.",
-        "Conquiste mais clientes, feche mais vendas, alcance novos patamares.",
         "O eGestor Mobile - seu aliado estratégico no mundo dos negócios.",
         "Transforme desafios em oportunidades com nossa plataforma.",
         "Tenha o controle total do seu negócio, a qualquer hora, em qualquer lugar.",

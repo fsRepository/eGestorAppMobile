@@ -75,6 +75,11 @@ export default function Motives() {
                 }
                 )
 
+        } else {
+            Toast.show({
+                type: 'info',
+                text1: 'Preencha os campos vazios'
+            })
         }
     }
 

@@ -103,8 +103,10 @@ export default function OverlayAtendiment({ setOpen, open,
                 itemSelected.Situacao === 'CONCLUIDO'
             ) {
                 setChekOk(true)
+                setPendentcHEK(false)
             } else {
                 setPendentcHEK(true)
+                setChekOk(false)
             }
 
         } else {

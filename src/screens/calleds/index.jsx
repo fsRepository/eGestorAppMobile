@@ -65,10 +65,10 @@ export default function Calleds() {
         try {
             setAtendiment(response.data)
             setLoading1(false)
-            if (atendiment.length === 0) {
-
+            if (response.data.length === 0) {
+                setEmptyList(true)
             } else {
-
+                setEmptyList(false)
             }
 
 

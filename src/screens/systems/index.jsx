@@ -62,7 +62,7 @@ export default function Sistems() {
                 })
         } else {
             Toast.show({
-                type: 'warn',
+                type: 'info',
                 text1: 'Preencha os campos vazios'
             })
         }
